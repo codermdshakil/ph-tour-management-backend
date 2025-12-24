@@ -21,18 +21,36 @@ const startServer = async () => {
 
 startServer();
 
-// handle unhandled rejection error
-process.on("unhandledRejection", () => {
 
-  console.log("Unhandle Rejection detected!! Server shutting down...");
+// handle uncaught rejection
+process.on("uncaughtException", (err) => {
+  console.log("Uncaught exception detected... Server shutting down..", err);
 
   if (server) {
     server.close(() => {
       process.exit(1);
     });
+  } else {
+    process.exit(1);
   }
-  
 });
+
+// handle unhandled rejection error
+process.on("unhandledRejection", (err) => {
+  console.log("Unhandle Rejection detected!! Server shutting down...", err);
+
+  if (server) {
+    server.close(() => {
+      process.exit(1);
+    });
+  } else {
+    process.exit(1);
+  }
+});
+
+// Promise.reject(new Error("I forget to handle this error!"))
+
+
 
 /**
  * 3 types of error can be occured!
