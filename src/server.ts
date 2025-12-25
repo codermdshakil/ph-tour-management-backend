@@ -21,36 +21,41 @@ const startServer = async () => {
 
 startServer();
 
+const shutdown = (signal:string) => {
+  console.log(`${signal} received. Server shutting down gracefully...`);
+  
+  if (server) {
+    server.close(() => {
+      console.log('Process terminated!');
+      // সফলভাবে বন্ধ হলে exit(0), আর এরর এর কারণে হলে exit(1)
+      process.exit(signal === 'uncaughtException' || signal === 'unhandledRejection' ? 1 : 0);
+    });
+  } else {
+    process.exit(0);
+  }
+};
 
-// handle uncaught rejection
+// সিগন্যাল হ্যান্ডলিং
+process.on("SIGTERM", () => shutdown("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
+
+// এক্সেপশন হ্যান্ডলিং
 process.on("uncaughtException", (err) => {
-  console.log("Uncaught exception detected... Server shutting down..", err);
-
-  if (server) {
-    server.close(() => {
-      process.exit(1);
-    });
-  } else {
-    process.exit(1);
-  }
+  console.error("Uncaught Exception:", err);
+  shutdown("uncaughtException");
 });
 
-// handle unhandled rejection error
 process.on("unhandledRejection", (err) => {
-  console.log("Unhandle Rejection detected!! Server shutting down...", err);
-
-  if (server) {
-    server.close(() => {
-      process.exit(1);
-    });
-  } else {
-    process.exit(1);
-  }
+  console.error("Unhandled Rejection:", err);
+  shutdown("unhandledRejection");
 });
 
-// Promise.reject(new Error("I forget to handle this error!"))
 
+// unhandled rejection detected
+Promise.reject(new Error("I forget to handle this error!"));
 
+// uncaught exception detected
+// throw new Error("I forget to solved this error!");
 
 /**
  * 3 types of error can be occured!
