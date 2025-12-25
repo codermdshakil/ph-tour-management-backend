@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Server } from "http";
 import mongoose from "mongoose";
 import app from "./app";
@@ -21,6 +22,10 @@ const startServer = async () => {
 
 startServer();
 
+
+
+// ## Error handle for Server gracefully shutting down!
+
 const shutdown = (signal:string) => {
   console.log(`${signal} received. Server shutting down gracefully...`);
   
@@ -35,6 +40,7 @@ const shutdown = (signal:string) => {
   }
 };
 
+
 // সিগন্যাল হ্যান্ডলিং
 process.on("SIGTERM", () => shutdown("SIGTERM"));
 process.on("SIGINT", () => shutdown("SIGINT"));
@@ -45,6 +51,8 @@ process.on("uncaughtException", (err) => {
   shutdown("uncaughtException");
 });
 
+
+
 process.on("unhandledRejection", (err) => {
   console.error("Unhandled Rejection:", err);
   shutdown("unhandledRejection");
@@ -52,7 +60,7 @@ process.on("unhandledRejection", (err) => {
 
 
 // unhandled rejection detected
-Promise.reject(new Error("I forget to handle this error!"));
+// Promise.reject(new Error("I forget to handle this error!"));
 
 // uncaught exception detected
 // throw new Error("I forget to solved this error!");
