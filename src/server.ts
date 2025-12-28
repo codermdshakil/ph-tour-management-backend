@@ -1,19 +1,22 @@
 /* eslint-disable no-console */
+
 import { Server } from "http";
 import mongoose from "mongoose";
 import app from "./app";
+import { envVars } from "./app/config/env";
 
 let server: Server;
 
 const startServer = async () => {
   try {
+
     await mongoose.connect(
       "mongodb+srv://fnfteam:fnfteam@fnfteam.ip63dn0.mongodb.net/tour-db"
     );
     console.log("Database Connected successfully!!");
 
-    server = app.listen(5000, () => {
-      console.log("Server running on port 5000!");
+    server = app.listen(envVars.PORT, () => {
+      console.log(`Server running on port ${envVars.PORT}`);
     });
   } catch (error) {
     console.log("Error Occured", error);
