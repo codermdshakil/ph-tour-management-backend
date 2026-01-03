@@ -12,7 +12,6 @@ export const createUser = async (req:Request, res:Response) => {
 
     const {name, email} = req.body;
     const user = await User.create({name, email});
-    console.log(user);
 
     res.status(StatusCodes.CREATED).json({
       message:"User created successfully!",

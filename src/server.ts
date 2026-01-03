@@ -11,7 +11,7 @@ const startServer = async () => {
   try {
 
     await mongoose.connect(
-      "mongodb+srv://ph-tour-db:ph-tour-db@cluster0.xri6vg6.mongodb.net/"
+      "mongodb+srv://ph-tour-db:ph-tour-db@cluster0.xri6vg6.mongodb.net/ph-tour-db"
     );
     console.log("Database Connected successfully!!");
 
