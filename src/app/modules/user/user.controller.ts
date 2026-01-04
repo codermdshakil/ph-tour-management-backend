@@ -1,11 +1,15 @@
-/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { Request, Response } from "express";
+
+import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { UserServices } from "./user.service";
 
 // create user
-export const createUser = async (req: Request, res: Response) => {
+export const createUser = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     const user = await UserServices.createUser(req.body);
 
@@ -13,13 +17,17 @@ export const createUser = async (req: Request, res: Response) => {
       message: "User created successfully!",
       user: user,
     });
-
+    
   } catch (err: any) {
-    console.log(err);
-    res.status(StatusCodes.BAD_REQUEST).json({
-      message: `Something want wrong!! ${err.message}`,
-      err: err,
-    });
+
+    // ##  normal error handle
+    // res.status(StatusCodes.BAD_REQUEST).json({
+    //   message: `Something want wrong!! ${err.message}`,
+    //   err: err,
+    // });
+
+    // ##  global error handle
+    next(err);
   }
 };
 
@@ -28,4 +36,3 @@ export const UserControllers = {
 };
 
 // route matching - controller - service - model - DB
- 
