@@ -1,7 +1,7 @@
 import { IUser } from "./user.interface";
 import { User } from "./user.model";
 
-
+// create user
 const createUser =  async (payload:Partial<IUser>) => {
 
   const {name, email} = payload;
