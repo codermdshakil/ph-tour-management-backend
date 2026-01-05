@@ -1,10 +1,9 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
+ 
 import cors from "cors";
 import express, { Request, Response } from "express";
 import morgan from "morgan";
 import { globalErrorHandler } from "./app/middlewares/globalErrorHandlers";
+import notFoundRoute from "./app/middlewares/notFoundRoute";
 import { router } from "./app/routes";
 
 const app = express();
@@ -23,8 +22,12 @@ app.get("/",(req:Request, res:Response) => {
 });
 
 
+// Not Found Route handle
+app.use(notFoundRoute)
+
 // Global Error handler
 app.use(globalErrorHandler)
+
 
 export default app;
 
