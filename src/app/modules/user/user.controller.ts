@@ -3,6 +3,7 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { catchAsync } from "../../utils/catchAsync";
+import { sendResponse } from "../../utils/sendResponse";
 import { UserServices } from "./user.service";
 
 // create user normal async
@@ -35,26 +36,32 @@ import { UserServices } from "./user.service";
 
 // create user using CatchAsync
 const createUser = catchAsync( async (req: Request, res: Response, next: NextFunction) => {
+
     const user = await UserServices.createUser(req.body);
 
-    res.status(StatusCodes.CREATED).json({
+    sendResponse(res, {
       success:true,
-      message: "User created successfully!",
-      user: user,
-    });
+      statusCode:StatusCodes.CREATED,
+      message:"Succcessfully created a user!!",
+      data:user
+    })
+ 
   }
 );
 
 // getAllUser
 const getAllUsers = catchAsync( async (req: Request, res: Response, next: NextFunction) => {
 
-    const users = await UserServices.getAllUsers();
+    const result = await UserServices.getAllUsers();
 
-    res.status(StatusCodes.OK).json({
+    sendResponse(res, {
       success:true,
-      message: "All user retrived successfully!",
-      users
+      statusCode:StatusCodes.OK,
+      message:"All user retrived successfully!",
+      data:result.data,
+      meta:result.meta
     });
+
   }
 );
 
