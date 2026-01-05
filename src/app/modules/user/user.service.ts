@@ -2,15 +2,22 @@ import { IUser } from "./user.interface";
 import { User } from "./user.model";
 
 // create user
-const createUser =  async (payload:Partial<IUser>) => {
+const createUser = async (payload: Partial<IUser>) => {
+  const { name, email } = payload;
 
-  const {name, email} = payload;
+  const user = await User.create({ name, email });
+  return user;
+};
 
-   const user = await User.create({name, email});
-   return user;
-}
+// get allUsers
+const getAllUsers = async () => {
 
+  const users = await User.find({});
+  return users;
+
+};
 
 export const UserServices = {
- createUser,
-}
+  createUser,
+  getAllUsers,
+};
