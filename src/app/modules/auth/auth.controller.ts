@@ -8,7 +8,6 @@ import { AuthServices } from "./auth.service";
 
 const credentialsLogin =  catchAsync( async (req: Request, res: Response, next: NextFunction) => {
 
-
   const loginInfo = await AuthServices.credentialsLogin(req.body)
 
     sendResponse(res, {
@@ -18,7 +17,7 @@ const credentialsLogin =  catchAsync( async (req: Request, res: Response, next: 
       data:loginInfo
     })
   }
-  
+
 );
 
 export const AuthControllers = {
