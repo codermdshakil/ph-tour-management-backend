@@ -1,15 +1,15 @@
- /* eslint-disable no-console */
+/* eslint-disable no-console */
 
 import { Server } from "http";
 import mongoose from "mongoose";
 import app from "./app";
 import { envVars } from "./app/config/env";
+import { seedSuperAdmin } from "./app/utils/seedSuperAdmin";
 
 let server: Server;
 
 const startServer = async () => {
   try {
-
     await mongoose.connect(
       "mongodb+srv://ph-tour-db:ph-tour-db@cluster0.xri6vg6.mongodb.net/ph-tour-db"
     );
@@ -23,26 +23,30 @@ const startServer = async () => {
   }
 };
 
-startServer();
-
-
+(async () => {
+  await startServer();
+  await seedSuperAdmin();
+})();
 
 // ## Error handle for Server gracefully shutting down!
 
-const shutdown = (signal:string) => {
+const shutdown = (signal: string) => {
   console.log(`${signal} received. Server shutting down gracefully...`);
-  
+
   if (server) {
     server.close(() => {
-      console.log('Process terminated!');
+      console.log("Process terminated!");
       // সফলভাবে বন্ধ হলে exit(0), আর এরর এর কারণে হলে exit(1)
-      process.exit(signal === 'uncaughtException' || signal === 'unhandledRejection' ? 1 : 0);
+      process.exit(
+        signal === "uncaughtException" || signal === "unhandledRejection"
+          ? 1
+          : 0
+      );
     });
   } else {
     process.exit(0);
   }
 };
-
 
 // সিগন্যাল হ্যান্ডলিং
 process.on("SIGTERM", () => shutdown("SIGTERM"));
@@ -54,13 +58,10 @@ process.on("uncaughtException", (err) => {
   shutdown("uncaughtException");
 });
 
-
-
 process.on("unhandledRejection", (err) => {
   console.error("Unhandled Rejection:", err);
   shutdown("unhandledRejection");
 });
-
 
 // unhandled rejection detected
 // Promise.reject(new Error("I forget to handle this error!"));
