@@ -1,5 +1,6 @@
 import bcryptjs from "bcryptjs";
 import { StatusCodes } from "http-status-codes";
+import { envVars } from "../../config/env";
 import AppError from "../../errorHanlers/AppError";
 import { IAuthProvider, IUser } from "./user.interface";
 import { User } from "./user.model";
@@ -24,7 +25,7 @@ const createUser = async (payload: Partial<IUser>) => {
   };
 
   
-  const hashedPassword = await bcryptjs.hash(password as string, 10);
+  const hashedPassword = await bcryptjs.hash(password as string, parseInt(envVars.BCRYPTJS_SALT_ROUND))
 
   const user = await User.create({
     email,
