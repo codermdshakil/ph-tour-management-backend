@@ -27,6 +27,8 @@ export const checkAuth = (...AuthRoles: string[]) => (req: Request, res: Respons
       throw new AppError( StatusCodes.BAD_REQUEST, "You are not permitted to view this Route!");
     }
 
+    req.user=verifiedToken;
+
     next();
   } catch (error) {
     next(error);
