@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import bcryptjs from "bcryptjs";
 import { StatusCodes } from "http-status-codes";
 import { envVars } from "../../config/env";
@@ -37,10 +38,14 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
   const accessToken = generateToken(jwtPayload,envVars.JWT_ACCESS_SECRET, envVars.JWT_ACCESS_EXPIRES);
   const refreshToken = generateToken(jwtPayload,envVars.JWT_REFRESH_SECRET, envVars.JWT_REFRESH_EXPIRES);
 
+  // delete password from user   
+  const { password: _password, ...rest } = isUserExist.toObject();
+  // delete isUserExist.password;
+
   return {
     accessToken,
     refreshToken,
-    user:isUserExist
+    user:rest
   };
 };
 
