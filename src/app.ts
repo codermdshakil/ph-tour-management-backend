@@ -1,17 +1,19 @@
  
+import cookieParser from "cookie-parser";
 import cors from "cors";
 import express, { Request, Response } from "express";
 import morgan from "morgan";
 import { globalErrorHandler } from "./app/middlewares/globalErrorHandlers";
 import notFoundRoute from "./app/middlewares/notFoundRoute";
 import { router } from "./app/routes";
-
+ 
 const app = express();
 
 
 app.use(express.json());
 app.use(morgan('dev'));
 app.use(cors());
+app.use(cookieParser()); // এটি কুকি পার্স করতে সাহায্য করে
 
 app.use("/api/v1", router);
 
