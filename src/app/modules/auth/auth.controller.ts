@@ -4,7 +4,7 @@ import { StatusCodes } from "http-status-codes";
 import AppError from "../../errorHanlers/AppError";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import { setAuthCookie } from "../../utils/setCookie";
+import { clearCookie, setAuthCookie } from "../../utils/setCookie";
 import { AuthServices } from "./auth.service";
 
 // create user and get access and refresh token
@@ -51,7 +51,20 @@ const getNewAccessToken = catchAsync(
   },
 );
 
+const logout = catchAsync( async (req: Request, res: Response, next: NextFunction) => {
+    // clear accessToken and refreshToken from cookie
+    clearCookie(res);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: StatusCodes.OK,
+      message: "User Logout Succcessfully!!",
+    });
+  },
+);
+
 export const AuthControllers = {
   credentialsLogin,
   getNewAccessToken,
+  logout,
 };

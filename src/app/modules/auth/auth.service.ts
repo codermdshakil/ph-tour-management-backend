@@ -55,10 +55,10 @@ const credentialsLogin = async (payload: Partial<IUser>) => {
 // using refreshToken get new AccessToken
 const getNewAccessToken = async (refreshToken: string) => {
   const accessToken =  await createAccessTokenWithRefreshToken(refreshToken);
-
   return  {accessToken};
 };
 
+ 
 export const AuthServices = {
   credentialsLogin,
   getNewAccessToken,
