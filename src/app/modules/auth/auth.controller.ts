@@ -4,6 +4,7 @@ import { StatusCodes } from "http-status-codes";
 import AppError from "../../errorHanlers/AppError";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
+import { setAuthCookie } from "../../utils/setCookie";
 import { AuthServices } from "./auth.service";
 
 // create user and get access and refresh token
@@ -11,19 +12,8 @@ const credentialsLogin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     const loginInfo = await AuthServices.credentialsLogin(req.body);
 
-    // set accessToken to cookies
-    res.cookie("accessToken", loginInfo.accessToken, {
-      httpOnly: true, // MUST have
-      secure: false,
-      sameSite: "strict",
-    });
-
-    // set refreshToken to cookies
-    res.cookie("refreshToken", loginInfo.refreshToken, {
-      httpOnly: true, // MUST have
-      secure: false,
-      sameSite: "strict",
-    });
+    // set accessToken, refreshToken to cookies
+    setAuthCookie(res, loginInfo);
 
     sendResponse(res, {
       success: true,
@@ -48,6 +38,9 @@ const getNewAccessToken = catchAsync(
     }
 
     const tokenInfo = await AuthServices.getNewAccessToken(refreshToken);
+
+    // set updated accessToken  to cookies
+    setAuthCookie(res, tokenInfo);
 
     sendResponse(res, {
       success: true,
