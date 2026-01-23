@@ -1,10 +1,13 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
+import { JwtPayload } from "jsonwebtoken";
+import { envVars } from "../../config/env";
 import AppError from "../../errorHanlers/AppError";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { clearCookie, setAuthCookie } from "../../utils/setCookie";
+import { createUserTokens } from "../../utils/userTokens";
 import { AuthServices } from "./auth.service";
 
 // create user and get access and refresh token
@@ -72,7 +75,11 @@ const resetPassword = catchAsync(
     const oldPassword = req.body.oldPassword;
     const newPassword = req.body.newPassword;
 
-    await AuthServices.resetPassword(oldPassword, newPassword, decodedToken);
+    await AuthServices.resetPassword(
+      oldPassword,
+      newPassword,
+      decodedToken as JwtPayload,
+    );
 
     sendResponse(res, {
       success: true,
@@ -82,9 +89,32 @@ const resetPassword = catchAsync(
   },
 );
 
+// reset password
+const googleCallbackController = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+
+    const user = req.user;
+    // console.log(user, "user");
+
+    if (!user) {
+      throw new AppError(StatusCodes.NOT_FOUND, "User not Found!");
+    }
+
+    // generate token accessToken, refreshToken
+    const tokenInfo = await createUserTokens(user);
+
+    // set tokens to cookie
+    setAuthCookie(res, tokenInfo);
+
+    // rediract
+    res.redirect(envVars.FRONTEND_URL);
+
+
+  });
+
 export const AuthControllers = {
   credentialsLogin,
   getNewAccessToken,
   logout,
   resetPassword,
+  googleCallbackController,
 };
