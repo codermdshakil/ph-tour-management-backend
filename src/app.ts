@@ -5,6 +5,7 @@ import express, { Request, Response } from "express";
 import expressSession from "express-session";
 import morgan from "morgan";
 import passport from "passport";
+import { envVars } from "./app/config/env";
 import "./app/config/passport";
 import { globalErrorHandler } from "./app/middlewares/globalErrorHandlers";
 import notFoundRoute from "./app/middlewares/notFoundRoute";
@@ -16,7 +17,7 @@ const app = express();
 
 
 app.use(expressSession({
-  secret:"your secret",
+  secret:envVars.EXPRESS_SESSION,
   resave:false,
   saveUninitialized:false
 }));
