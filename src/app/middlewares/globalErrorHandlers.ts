@@ -19,9 +19,12 @@ export const globalErrorHandler = (
 
   //  এর মানে হল err যদি  AppError  এর object হয় তাহলে  statusCode, message গুলু value পরিবর্তন হবে
  
+  // mongoose duplicate error handle
   if(err.code === 11000){
+    const matchedArray = err.message.match(/"([^"]*)"/);
+     
     statusCode = 400
-    message = `${err.errorResponse.keyValue.email} already Exist!`;
+    message = `Email ${matchedArray[1]} already Exist!`;
 
   }
   else if (err instanceof AppError) {
