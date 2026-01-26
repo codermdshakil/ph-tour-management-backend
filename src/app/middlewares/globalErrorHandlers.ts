@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextFunction, Request, Response } from "express";
@@ -13,8 +14,17 @@ export const globalErrorHandler = (
   let statusCode = 500;
   let message = "Someting want wrong!";
 
+
+  console.log(err, "from global error!");
+
   //  এর মানে হল err যদি  AppError  এর object হয় তাহলে  statusCode, message গুলু value পরিবর্তন হবে
-  if (err instanceof AppError) {
+ 
+  if(err.code === 11000){
+    statusCode = 400
+    message = `${err.errorResponse.keyValue.email} already Exist!`;
+
+  }
+  else if (err instanceof AppError) {
 
     statusCode = err.statusCode;
     message = err.message;
