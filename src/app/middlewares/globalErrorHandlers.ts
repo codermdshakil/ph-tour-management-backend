@@ -29,9 +29,23 @@ export const globalErrorHandler = (
     statusCode = 400;
     message = "Invalid MongoDB objectID, Please Provide a valid ObjectID";
   }
+  // Zod Error
+  else if (err.name === "ZodError") {
+    message = "Zod Error!";
+    statusCode = 400;
+
+    const errorsObject = JSON.parse(err);
+
+    errorsObject.forEach((errorObject: any) => {
+
+      errorSources.push({
+        path:errorObject.path.length > 1 ? errorObject.path.slice().reverse().join(" inside ") : errorObject.path[0],
+        message: errorObject.message,
+      });
+    });
+  }
   // Mongoose Validation Error
   else if (err.name === "ValidationError") {
-
     statusCode = 400;
     const errors = Object.values(err.errors);
 
@@ -41,13 +55,10 @@ export const globalErrorHandler = (
         message: errorObject.message,
       }),
     );
-
     message = "Validation Error!";
-
   } else if (err instanceof AppError) {
     statusCode = err.statusCode;
     message = err.message;
-
   } else if (err instanceof Error) {
     //  এর মানে হল err যদি  Error  এর object হয় তাহলে  statusCode, message গুলু value পরিবর্তন হবে
     statusCode = 500;
@@ -57,7 +68,7 @@ export const globalErrorHandler = (
   res.status(statusCode).json({
     message,
     errorSources,
-    // err,
+    err,
     stack: envVars.NODE_ENV === "development" ? err.stack : null,
   });
 };
