@@ -9,31 +9,46 @@ export const globalErrorHandler = (
   err: any,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   let statusCode = 500;
   let message = "Someting want wrong!";
-
-
-  console.log(err, "from global error!");
+  const errorSources: any = [];
 
   //  এর মানে হল err যদি  AppError  এর object হয় তাহলে  statusCode, message গুলু value পরিবর্তন হবে
- 
+
   // mongoose duplicate error handle
-  if(err.code === 11000){
+  if (err.code === 11000) {
     const matchedArray = err.message.match(/"([^"]*)"/);
-     
-    statusCode = 400
+
+    statusCode = 400;
     message = `Email ${matchedArray[1]} already Exist!`;
-
   }
-  else if (err instanceof AppError) {
+  // mongoose ObjectId Error / CastError
+  else if (err.name === "CastError") {
+    statusCode = 400;
+    message = "Invalid MongoDB objectID, Please Provide a valid ObjectID";
+  }
+  // Mongoose Validation Error
+  else if (err.name === "ValidationError") {
 
+    statusCode = 400;
+    const errors = Object.values(err.errors);
+
+    errors.forEach((errorObject: any) =>
+      errorSources.push({
+        path: errorObject.path,
+        message: errorObject.message,
+      }),
+    );
+
+    message = "Validation Error!";
+
+  } else if (err instanceof AppError) {
     statusCode = err.statusCode;
     message = err.message;
 
   } else if (err instanceof Error) {
-
     //  এর মানে হল err যদি  Error  এর object হয় তাহলে  statusCode, message গুলু value পরিবর্তন হবে
     statusCode = 500;
     message = err.message;
@@ -41,7 +56,8 @@ export const globalErrorHandler = (
 
   res.status(statusCode).json({
     message,
-    err,
+    errorSources,
+    // err,
     stack: envVars.NODE_ENV === "development" ? err.stack : null,
   });
 };
