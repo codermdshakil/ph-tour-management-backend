@@ -1,12 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  IErrorSources,
+  TErrorSources,
   TGenericErrorResponse,
 } from "../interfaces/error.types";
 
 // handle zod error
 export const handleZodError = (err: any): TGenericErrorResponse => {
-  const errorSources: IErrorSources[] = [];
+  const errorSources: TErrorSources[] = [];
 
   const errorsObject = JSON.parse(err);
   errorsObject.forEach((errorObject: any) => {
