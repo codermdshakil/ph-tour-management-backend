@@ -2,6 +2,7 @@
 
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
+import { JwtPayload } from "jsonwebtoken";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { UserServices } from "./user.service";
@@ -58,7 +59,7 @@ const updateUser = catchAsync(
 
     // payload
     // decodedToken
-    const verifiedToken = req.user;
+    const verifiedToken = req.user as JwtPayload;
 
     const user = await UserServices.updateUser(userId, payload, verifiedToken);
 

@@ -1,26 +1,55 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
+import { JwtPayload } from "jsonwebtoken";
+import passport from "passport";
+import { envVars } from "../../config/env";
 import AppError from "../../errorHanlers/AppError";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { clearCookie, setAuthCookie } from "../../utils/setCookie";
+import { createUserTokens } from "../../utils/userTokens";
 import { AuthServices } from "./auth.service";
 
 // create user and get access and refresh token
 const credentialsLogin = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-    const loginInfo = await AuthServices.credentialsLogin(req.body);
+    // const loginInfo = await AuthServices.credentialsLogin(req.body);
 
-    // set accessToken, refreshToken to cookies
-    setAuthCookie(res, loginInfo);
+    passport.authenticate("local", async (err: any, user: any, info: any) => {
+      if (err) {
+       
+        return next(new AppError(StatusCodes.BAD_REQUEST, "Something want wrong!"));
+      }
 
-    sendResponse(res, {
-      success: true,
-      statusCode: StatusCodes.OK,
-      message: "Succcessfully user Logged In!!",
-      data: loginInfo,
-    });
+      if (!user) {
+       return next(new AppError(StatusCodes.BAD_REQUEST, info.message));
+      }
+
+      const userTokens = await createUserTokens(user);
+
+      // delete password
+      // delete user.toObject().password;
+
+      const {password:pass, ...rest} = user.toObject();
+
+
+      // set accessToken, refreshToken to cookies
+      setAuthCookie(res, userTokens);
+
+      sendResponse(res, {
+        success: true,
+        statusCode: StatusCodes.OK,
+        message: "Succcessfully user Logged In!!",
+        data: {
+          accessToken:userTokens.accessToken,
+          refreshToken:userTokens.refreshToken,
+          user:rest
+        }
+
+      });
+    })(req, res, next);
   },
 );
 
@@ -72,7 +101,11 @@ const resetPassword = catchAsync(
     const oldPassword = req.body.oldPassword;
     const newPassword = req.body.newPassword;
 
-    await AuthServices.resetPassword(oldPassword, newPassword, decodedToken);
+    await AuthServices.resetPassword(
+      oldPassword,
+      newPassword,
+      decodedToken as JwtPayload,
+    );
 
     sendResponse(res, {
       success: true,
@@ -82,9 +115,37 @@ const resetPassword = catchAsync(
   },
 );
 
+// reset password
+const googleCallbackController = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    let redirectTo = req.query.state ? (req.query.state as string) : "";
+
+    if (redirectTo.startsWith("/")) {
+      redirectTo = redirectTo.slice(1);
+    }
+
+    const user = req.user;
+    // console.log(user, "user");
+
+    if (!user) {
+      throw new AppError(StatusCodes.NOT_FOUND, "User not Found!");
+    }
+
+    // generate token accessToken, refreshToken
+    const tokenInfo = await createUserTokens(user);
+
+    // set tokens to cookie
+    setAuthCookie(res, tokenInfo);
+
+    // rediract
+    res.redirect(`${envVars.FRONTEND_URL}/${redirectTo}`);
+  },
+);
+
 export const AuthControllers = {
   credentialsLogin,
   getNewAccessToken,
   logout,
   resetPassword,
+  googleCallbackController,
 };

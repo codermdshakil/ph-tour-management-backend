@@ -1,25 +1,70 @@
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { NextFunction, Request, Response } from "express";
 import { envVars } from "../config/env";
 import AppError from "../errorHanlers/AppError";
+import { handleCastError } from "../helpers/handleCastError";
+import { handleDuplicateError } from "../helpers/handleDuplicateError";
+import { handleValidationError } from "../helpers/handleValidationError";
+import { handleZodError } from "../helpers/handleZodError";
+import { TErrorSources } from "../interfaces/error.types";
+
+
 
 export const globalErrorHandler = (
   err: any,
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   let statusCode = 500;
   let message = "Someting want wrong!";
+  let errorSources: TErrorSources[] = [];
+  
 
-  //  এর মানে হল err যদি  AppError  এর object হয় তাহলে  statusCode, message গুলু value পরিবর্তন হবে
-  if (err instanceof AppError) {
+  // check
+  if(envVars.NODE_ENV === "development"){
+    console.log(err);
+  }
+  
+   //  এর মানে হল err যদি  AppError  এর object হয় তাহলে  statusCode, message গুলু value পরিবর্তন হবে
+  // mongoose duplicate error handle
+  if (err.code === 11000) {
+    const result = handleDuplicateError(err);
+    statusCode = result.statusCode;
+    message = result.message;
+  }
+  // mongoose ObjectId Error / CastError
+  else if (err.name === "CastError") {
+    const result = handleCastError(err);
+    statusCode = result.statusCode;
+    message = result.message;
+  }
+  // Zod Error
+  else if (err.name === "ZodError") {
+    const result = handleZodError(err);
+    statusCode = result.statusCode;
+    message = result.message;
+    errorSources = result.errorSources as TErrorSources[];
+  }
+  // Mongoose Validation Error
+  else if (err.name === "ValidationError") {
 
+    const result = handleValidationError(err);
+    statusCode = result.statusCode;
+    message = result.message;
+     errorSources = result.errorSources as TErrorSources[];
+
+  } 
+  else if (err instanceof AppError) {
+    
     statusCode = err.statusCode;
     message = err.message;
 
-  } else if (err instanceof Error) {
+  } 
+  else if (err instanceof Error) {
 
     //  এর মানে হল err যদি  Error  এর object হয় তাহলে  statusCode, message গুলু value পরিবর্তন হবে
     statusCode = 500;
@@ -28,7 +73,8 @@ export const globalErrorHandler = (
 
   res.status(statusCode).json({
     message,
-    err,
+    errorSources,
+    err:envVars.NODE_ENV === "development" ? err: null,
     stack: envVars.NODE_ENV === "development" ? err.stack : null,
   });
 };
