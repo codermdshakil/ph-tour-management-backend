@@ -20,6 +20,7 @@ const divisionSchema = new Schema<IDivition>({
   }
 },{
   timestamps:true,
+  versionKey:false
 });
 
 export const Division = model<IDivition>("Division", divisionSchema);

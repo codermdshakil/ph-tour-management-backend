@@ -21,9 +21,11 @@ export const globalErrorHandler = (
   let message = "Someting want wrong!";
   let errorSources: TErrorSources[] = [];
 
+
+
   // check
   if (envVars.NODE_ENV === "development") {
-    console.log(err);
+    console.log(err, "from global error handler");
   }
 
   //  এর মানে হল err যদি  AppError  এর object হয় তাহলে  statusCode, message গুলু value পরিবর্তন হবে

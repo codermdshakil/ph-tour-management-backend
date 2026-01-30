@@ -36,9 +36,9 @@ import { UserServices } from "./user.service";
 // };
 
 // create user using CatchAsync
-const createUser = catchAsync(
-  async (req: Request, res: Response, next: NextFunction) => {
-    const user = await UserServices.createUser(req.body);
+const createUser = catchAsync( async (req: Request, res: Response, next: NextFunction) => {  
+  
+  const user = await UserServices.createUser(req.body);
 
     sendResponse(res, {
       success: true,
