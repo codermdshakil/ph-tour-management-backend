@@ -11,8 +11,6 @@ import { handleValidationError } from "../helpers/handleValidationError";
 import { handleZodError } from "../helpers/handleZodError";
 import { TErrorSources } from "../interfaces/error.types";
 
-
-
 export const globalErrorHandler = (
   err: any,
   req: Request,
@@ -22,14 +20,13 @@ export const globalErrorHandler = (
   let statusCode = 500;
   let message = "Someting want wrong!";
   let errorSources: TErrorSources[] = [];
-  
 
   // check
-  if(envVars.NODE_ENV === "development"){
+  if (envVars.NODE_ENV === "development") {
     console.log(err);
   }
-  
-   //  এর মানে হল err যদি  AppError  এর object হয় তাহলে  statusCode, message গুলু value পরিবর্তন হবে
+
+  //  এর মানে হল err যদি  AppError  এর object হয় তাহলে  statusCode, message গুলু value পরিবর্তন হবে
   // mongoose duplicate error handle
   if (err.code === 11000) {
     const result = handleDuplicateError(err);
@@ -51,21 +48,14 @@ export const globalErrorHandler = (
   }
   // Mongoose Validation Error
   else if (err.name === "ValidationError") {
-
     const result = handleValidationError(err);
     statusCode = result.statusCode;
     message = result.message;
-     errorSources = result.errorSources as TErrorSources[];
-
-  } 
-  else if (err instanceof AppError) {
-    
+    errorSources = result.errorSources as TErrorSources[];
+  } else if (err instanceof AppError) {
     statusCode = err.statusCode;
     message = err.message;
-
-  } 
-  else if (err instanceof Error) {
-
+  } else if (err instanceof Error) {
     //  এর মানে হল err যদি  Error  এর object হয় তাহলে  statusCode, message গুলু value পরিবর্তন হবে
     statusCode = 500;
     message = err.message;
@@ -74,7 +64,7 @@ export const globalErrorHandler = (
   res.status(statusCode).json({
     message,
     errorSources,
-    err:envVars.NODE_ENV === "development" ? err: null,
+    err: envVars.NODE_ENV === "development" ? err : null,
     stack: envVars.NODE_ENV === "development" ? err.stack : null,
   });
 };
