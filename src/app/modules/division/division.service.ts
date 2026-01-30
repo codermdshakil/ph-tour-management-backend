@@ -1,107 +1,93 @@
-import { generateSlug } from "../../utils/generateSlug";
-import { IDivition } from "./division.interface";
+import { IDivision } from "./division.interface";
 import { Division } from "./division.model";
 
+const createDivision = async (payload: IDivision) => {
 
-// create division
-const createDivision = async (payload: Partial<IDivition>) => {
+    const existingDivision = await Division.findOne({ name: payload.name });
 
-    if (!payload.name) {
-    throw new Error("Division name is required");
-  }
-
-  const slug = generateSlug(payload.name);
-
-    const isDivisionExists = await Division.findOne({
-      $or: [
-        { name: payload.name },
-        { slug: payload.slug },
-      ],
-    });
-
-    if (isDivisionExists) {
-      if (isDivisionExists.name === payload.name) {
-        throw new Error(`${isDivisionExists.name} Division name already exists`);
-      }
-      if (isDivisionExists.slug === payload.slug) {
-        throw new Error("Division slug already exists");
-      }
+    if (existingDivision) {
+        throw new Error("A division with this name already exists.");
     }
 
-    const division = await Division.create({...payload, slug});
 
-    return division;
+    // const baseSlug = payload.name.toLowerCase().split(" ").join("-")
+    // let slug = `${baseSlug}-division`
 
-}
+    // let counter = 0;
+    // while (await Division.exists({ slug })) {
+    //     slug = `${slug}-${counter++}` // dhaka-division-2
+    // }
 
-const getAllDivisions = async () => {
+    // payload.slug = slug;
 
-  const divisions = await Division.find({});
-    const totalDivisions = await Division.countDocuments();
-  
-    return {
-      data: divisions,
-      meta: {
-        total: totalDivisions,
-      },
-    };
+    const division = await Division.create(payload);
 
-}
-
-const updateDivision = async (
-  id: string,
-  payload: Partial<IDivition>
-): Promise<IDivition | null> => {
-  /* 1️⃣ Check if division exists */
-  const existingDivision = await Division.findById(id);
-
-  if (!existingDivision) {
-    throw new Error("Division not found");
-  }
-
-  /* 2️⃣ Handle name → slug regeneration */
-  let updatedSlug = existingDivision.slug;
-
-  if (payload.name && payload.name !== existingDivision.name) {
-    updatedSlug = generateSlug(payload.name);
-
-    /* 3️⃣ Uniqueness check (exclude current division) */
-    const isDuplicate = await Division.findOne({
-      _id: { $ne: id },
-      $or: [
-        { name: payload.name },
-        { slug: updatedSlug },
-      ],
-    });
-
-    if (isDuplicate) {
-      if (isDuplicate.name === payload.name) {
-        throw new Error("Division name already exists");
-      }
-      if (isDuplicate.slug === updatedSlug) {
-        throw new Error("Division slug already exists");
-      }
-    }
-  }
-
-  /* 4️⃣ Update division */
-  const updatedDivision = await Division.findByIdAndUpdate(
-    id,
-    {
-      ...payload,
-      slug: updatedSlug,
-    },
-    {
-      new: true,
-      runValidators: true,
-    }
-  );
-
-  return updatedDivision;
+    return division
 };
 
-export const DivisionServices = {
-  createDivision,
-  getAllDivisions,
-  updateDivision
-}
+const getAllDivisions = async () => {
+    const divisions = await Division.find({});
+    const totalDivisions = await Division.countDocuments();
+    return {
+        data: divisions,
+        meta: {
+            total: totalDivisions
+        }
+    }
+};
+
+
+const getSingleDivision = async (slug: string) => {
+    const division = await Division.findOne({ slug });
+    return {
+        data: division,
+    }
+};
+
+
+const updateDivision = async (id: string, payload: Partial<IDivision>) => {
+
+    const existingDivision = await Division.findById(id);
+    if (!existingDivision) {
+        throw new Error("Division not found.");
+    }
+
+    const duplicateDivision = await Division.findOne({
+        name: payload.name,
+        _id: { $ne: id },
+    });
+
+    if (duplicateDivision) {
+        throw new Error("A division with this name already exists.");
+    }
+
+    // if (payload.name) {
+    //     const baseSlug = payload.name.toLowerCase().split(" ").join("-")
+    //     let slug = `${baseSlug}-division`
+
+    //     let counter = 0;
+    //     while (await Division.exists({ slug })) {
+    //         slug = `${slug}-${counter++}` // dhaka-division-2
+    //     }
+
+    //     payload.slug = slug
+    // }
+
+    const updatedDivision = await Division.findByIdAndUpdate(id, payload, { new: true, runValidators: true })
+
+    return updatedDivision
+
+};
+
+const deleteDivision = async (id: string) => {
+    await Division.findByIdAndDelete(id);
+    return null;
+};
+
+export const DivisionService = {
+    createDivision,
+    getAllDivisions,
+    getSingleDivision,
+    updateDivision,
+    deleteDivision,
+};

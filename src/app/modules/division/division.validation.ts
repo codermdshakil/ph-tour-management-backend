@@ -1,12 +1,12 @@
 import { z } from "zod";
 
-export const createDivisionZodSchema = z.object({
+export const createDivisionSchema = z.object({
     name: z.string().min(1),
     thumbnail: z.string().optional(),
     description: z.string().optional(),
 });
 
-export const updateDivisionZodSchema = z.object({
+export const updateDivisionSchema = z.object({
     name: z.string().min(1).optional(),
     thumbnail: z.string().optional(),
     description: z.string().optional(),
