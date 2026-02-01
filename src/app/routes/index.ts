@@ -19,7 +19,8 @@ const moduleRoutes = [
   {
     path:"/division",
     route:DivisionRoutes
-  }
+  },
+   
 ];
 
 moduleRoutes.forEach((route) => {
