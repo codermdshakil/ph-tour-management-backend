@@ -20,6 +20,10 @@ const moduleRoutes = [
     path:"/division",
     route:DivisionRoutes
   },
+  {
+    path:"/tour",
+    route:DivisionRoutes
+  },
    
 ];
 
