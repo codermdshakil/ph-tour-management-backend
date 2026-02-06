@@ -5,6 +5,7 @@ import { Division } from "./division.model";
 
 // create division
 const createDivision = async (payload: Partial<IDivision>) => {
+
   const isExistingDivision = await Division.findOne({ name: payload.name });
 
   const slug = payload.name?.toLowerCase().split(" ").join("-");
@@ -20,6 +21,19 @@ const createDivision = async (payload: Partial<IDivision>) => {
 
   return division;
 };
+
+// get all divisions
+const getAllDivisions = async () => {
+  const divisions = await Division.find({});
+  const totalDivisions = await Division.countDocuments();
+
+  return {
+    data:divisions,
+    meta:{
+      total:totalDivisions
+    }
+  }
+}
 
 const updateDivision = async (id: string, payload: Partial<IDivision>) => {
   const isExist = await Division.findById(id);
@@ -66,16 +80,16 @@ const deleteDivision = async (id: string) => {
   return null;
 };
 
-const getSingleDivision = async (id:string) => {
-
-    const singleDivision = await Division.findById(id);
-
-    return singleDivision;
-
+const getSingleDivision = async (slug:string) => {
+  const division = await Division.findOne({ slug });
+    return {
+        data: division,
+    }
 }
 
 export const DivisionService = {
   createDivision,
+  getAllDivisions,
   updateDivision,
   deleteDivision,
   getSingleDivision
