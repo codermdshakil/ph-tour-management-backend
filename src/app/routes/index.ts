@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { AuthRoutes } from "../modules/auth/auth.route";
 import { DivisionRoutes } from "../modules/division/division.routes";
+import { TourRoutes } from "../modules/tour/tour.route";
 import { UserRoutes } from "../modules/user/user.routes";
 
 
@@ -22,7 +23,7 @@ const moduleRoutes = [
   },
   {
     path:"/tour",
-    route:DivisionRoutes
+    route:TourRoutes
   },
    
 ];

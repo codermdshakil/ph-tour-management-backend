@@ -8,7 +8,15 @@ const createDivision = async (payload: Partial<IDivision>) => {
 
   const isExistingDivision = await Division.findOne({ name: payload.name });
 
-  const slug = payload.name?.toLowerCase().split(" ").join("-");
+  const baseslug = payload.name?.toLowerCase().split(" ").join("-");
+  let slug = `${baseslug}-division`;
+
+  let counter = 0;
+
+  while(await Division.exists({slug})){
+    slug = `${slug}-${counter++}`;
+  }
+
 
   if (isExistingDivision) {
     throw new AppError(
