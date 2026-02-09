@@ -29,6 +29,26 @@ const createTour = async (payload: ITour) => {
   return tour;
 };
 
+const getAllTours = async () => {
+  const tours = await Tour.find({});
+  const totalTours = await Tour.countDocuments();
+
+  return {
+    data:tours,
+    meta:{
+      total:totalTours
+    }
+  }
+}
+
+const getSingleTour = async (id:string) => {
+  const tour = await Tour.findById(id);
+  if(!tour){
+    throw new AppError(StatusCodes.BAD_REQUEST, "Tour not Found!")
+  }
+    return tour;
+}
+
 const updateTour = async (id: string, payload: Partial<ITour>) => {
   const existingTour = await Tour.findById(id);
 
@@ -57,7 +77,21 @@ const updateTour = async (id: string, payload: Partial<ITour>) => {
   return updatedTour;
 };
 
+const deleteTour = async (id: string) => {
+
+  const tour = await Tour.findByIdAndDelete(id);
+
+  if (!tour) {
+    throw new AppError(StatusCodes.NOT_FOUND,"No tour found with that ID");
+  }
+
+  return null;
+};
+
 export const TourServices = {
   createTour,
   updateTour,
+  deleteTour,
+  getAllTours,
+  getSingleTour
 };
