@@ -5,17 +5,7 @@ import { Division } from "./division.model";
 
 // create division
 const createDivision = async (payload: Partial<IDivision>) => {
-
   const isExistingDivision = await Division.findOne({ name: payload.name });
-
-  const baseslug = payload.name?.toLowerCase().split(" ").join("-");
-  let slug = `${baseslug}-division`;
-
-  let counter = 0;
-
-  while(await Division.exists({slug})){
-    slug = `${slug}-${counter++}`;
-  }
 
 
   if (isExistingDivision) {
@@ -24,7 +14,6 @@ const createDivision = async (payload: Partial<IDivision>) => {
       "This Division name Already Exist!",
     );
   }
-  payload.slug=slug;
 
   const division = await Division.create(payload);
 
@@ -37,12 +26,12 @@ const getAllDivisions = async () => {
   const totalDivisions = await Division.countDocuments();
 
   return {
-    data:divisions,
-    meta:{
-      total:totalDivisions
-    }
-  }
-}
+    data: divisions,
+    meta: {
+      total: totalDivisions,
+    },
+  };
+};
 
 const updateDivision = async (id: string, payload: Partial<IDivision>) => {
   const isExist = await Division.findById(id);
@@ -65,16 +54,16 @@ const updateDivision = async (id: string, payload: Partial<IDivision>) => {
     });
 
     const baseslug = payload.name?.toLowerCase().split(" ").join("-");
-      let slug = `${baseslug}-division`;
-    
-      let counter = 0;
-    
-      while (await Division.exists({ slug })) {
-        slug = `${slug}-${counter++}`;
-      }
+    let slug = `${baseslug}-division`;
 
-      payload.slug = slug;
-      
+    let counter = 0;
+
+    while (await Division.exists({ slug })) {
+      slug = `${slug}-${counter++}`;
+    }
+
+    payload.slug = slug;
+
     if (isDuplicate) {
       throw new AppError(409, "Division already exists");
     }
@@ -100,17 +89,17 @@ const deleteDivision = async (id: string) => {
   return null;
 };
 
-const getSingleDivision = async (slug:string) => {
+const getSingleDivision = async (slug: string) => {
   const division = await Division.findOne({ slug });
-    return {
-        data: division,
-    }
-}
+  return {
+    data: division,
+  };
+};
 
 export const DivisionService = {
   createDivision,
   getAllDivisions,
   updateDivision,
   deleteDivision,
-  getSingleDivision
+  getSingleDivision,
 };

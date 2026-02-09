@@ -23,12 +23,7 @@ router.delete("/tour-types/:id", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), TourCo
 router.post("/create", validateRequest(createTourZodSchema), checkAuth(Role.ADMIN, Role.SUPER_ADMIN), TourControllers.createTour)
 router.get("/", TourControllers.getAllTours);
 router.get("/:id", TourControllers.getSingleTour);
-router.patch(
-    "/:id",
-    checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
-    validateRequest(updateTourZodSchema),
-    TourControllers.updateTour
-);
+router.patch("/:id",  checkAuth(Role.ADMIN, Role.SUPER_ADMIN), validateRequest(updateTourZodSchema), TourControllers.updateTour);
 router.delete("/:id", checkAuth(Role.ADMIN, Role.SUPER_ADMIN), TourControllers.deleteTour);
 
 
