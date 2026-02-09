@@ -58,7 +58,7 @@ const deleteTourType = async (id: string) => {
 
 
 
-
+// Tour Serevices here 
 const createTour = async (payload: ITour) => {
   const existingTour = await Tour.findOne({ title: payload.title });
 
@@ -75,8 +75,8 @@ const createTour = async (payload: ITour) => {
   return tour;
 };
 
-const getAllTours = async () => {
-  const tours = await Tour.find({});
+const getAllTours = async (query : Record<string, string>) => {
+  const tours = await Tour.find(query);
   const totalTours = await Tour.countDocuments();
 
   return {
