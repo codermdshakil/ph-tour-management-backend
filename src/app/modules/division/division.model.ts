@@ -32,6 +32,28 @@ divisionSchema.pre("save", async function () {
 
 });
 
+divisionSchema.pre("findOneAndUpdate", async function(){
+
+  const division = this.getUpdate() as Partial<IDivision>;
+
+  if(division.name){
+
+    const baseslug = division.name?.toLowerCase().split(" ").join("-");
+    let slug = `${baseslug}-division`;
+
+    let counter = 0;
+
+    while (await Division.exists({ slug })) {
+      slug = `${slug}-${counter++}`;
+    }
+
+    division.slug = slug;
+  }
+
+  this.setUpdate(division)
+
+})
+
 
 
 
