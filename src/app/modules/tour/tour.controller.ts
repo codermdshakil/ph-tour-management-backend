@@ -4,6 +4,61 @@ import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { TourServices } from "./tour.services";
 
+
+// ------ TourType Starts here ---- 
+
+const createTourType = catchAsync(async (req: Request, res: Response) => {
+  const tourType = await TourServices.createTourType(req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.CREATED,
+    message: "Successfully created a TourType!",
+    data: tourType,
+  });
+});
+
+const updateTourType = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  const result = await TourServices.updateTourType(id, req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "Successfully Updated a TourType!",
+    data: result,
+  });
+});
+
+const getAllTourType = catchAsync(async (req: Request, res: Response) => {
+ 
+  const result = await TourServices.getAllTourType();
+
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "Successfully get All TourType!",
+    data: result,
+  });
+});
+
+const deleteTourType = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id;
+
+  const result = await TourServices.deleteTourType(id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "Successfully Delete a TourType!",
+    data: result,
+  });
+});
+
+
+// Tours Controllers starts here 
+
 const createTour = catchAsync(async (req: Request, res: Response) => {
   const tour = await TourServices.createTour(req.body);
 
@@ -67,6 +122,10 @@ const deleteTour = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const TourControllers = {
+  createTourType,
+  updateTourType, 
+  getAllTourType,
+  deleteTourType,
   createTour,
   getAllTours,
   getSingleTour,
