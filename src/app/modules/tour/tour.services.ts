@@ -76,7 +76,14 @@ const createTour = async (payload: ITour) => {
 };
 
 const getAllTours = async (query : Record<string, string>) => {
-  const tours = await Tour.find(query);
+
+  const filter = query;
+  const searchTerm = query.searchTerm || "";
+
+
+  const tours = await Tour.find({
+    title:{$regex:searchTerm, $options:"i"}
+  });
   const totalTours = await Tour.countDocuments();
 
   return {

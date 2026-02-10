@@ -54,9 +54,4 @@ divisionSchema.pre("findOneAndUpdate", async function(){
 
 })
 
-
-
-
-
-
 export const Division = model<IDivision>("Division", divisionSchema);
