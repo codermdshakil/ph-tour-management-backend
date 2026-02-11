@@ -1,4 +1,5 @@
 import { StatusCodes } from "http-status-codes";
+import { excludedField } from "../../constant";
 import AppError from "../../errorHanlers/AppError";
 import { tourSearchAbleFields } from "./tour.constant";
 import { ITour, ITourType } from "./tour.interface";
@@ -80,15 +81,23 @@ const getAllTours = async (query : Record<string, string>) => {
 
   const filter = query;
   const searchTerm = query.searchTerm || "";
+  const sort = query.sort || "-createdAt";
+  const fields = query.fields.split(",").join(" ") || "";
 
-  delete filter["searchTerm"]
+  // delete excluded fields from query 
+  for (const field of excludedField) {
+    // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
+    delete filter[field]; 
+  }
+  
+
 
   const searchQuery = {
     $or:tourSearchAbleFields.map((field) => ({[field]:{$regex:searchTerm, $options:"i"}}))
   }
   
 
-  const tours = await Tour.find(searchQuery).find(filter);
+  const tours = await Tour.find(searchQuery).find(filter).sort(sort).select(fields);
 
   const totalTours = await Tour.countDocuments();
 
