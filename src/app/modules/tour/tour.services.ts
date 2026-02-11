@@ -82,7 +82,7 @@ const getAllTours = async (query : Record<string, string>) => {
   const filter = query;
   const searchTerm = query.searchTerm || "";
   const sort = query.sort || "-createdAt";
-  const fields = query.fields.split(",").join(" ") || "";
+  const fields = query.fields?.split(",").join(" ") || "";
 
   // delete excluded fields from query 
   for (const field of excludedField) {
