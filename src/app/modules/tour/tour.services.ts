@@ -58,9 +58,7 @@ const deleteTourType = async (id: string) => {
   return null;
 };
 
-
-
-// Tour Serevices here 
+// Tour Serevices here
 const createTour = async (payload: ITour) => {
   const existingTour = await Tour.findOne({ title: payload.title });
 
@@ -71,14 +69,12 @@ const createTour = async (payload: ITour) => {
     );
   }
 
-
   const tour = await Tour.create(payload);
 
   return tour;
 };
 
-const getAllTours = async (query : Record<string, string>) => {
-
+const getAllTours = async (query: Record<string, string>) => {
   const filter = query;
   const searchTerm = query.searchTerm || "";
   const sort = query.sort || "-createdAt";
@@ -87,35 +83,40 @@ const getAllTours = async (query : Record<string, string>) => {
   const page = Number(query.page) || 1;
   const limit = Number(query.limit) || 10;
 
+  const skip = (page - 1) * limit;
 
-  const skip = (page - 1 ) * limit;
-
-
-  // delete excluded fields from query 
+  // delete excluded fields from query
   for (const field of excludedField) {
     // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
-    delete filter[field]; 
+    delete filter[field];
   }
-  
-
 
   const searchQuery = {
-    $or:tourSearchAbleFields.map((field) => ({[field]:{$regex:searchTerm, $options:"i"}}))
-  }
-  
+    $or: tourSearchAbleFields.map((field) => ({
+      [field]: { $regex: searchTerm, $options: "i" },
+    })),
+  };
 
-  const tours = await Tour.find(searchQuery).find(filter).sort(sort).select(fields).limit(limit).skip(skip);
+  const tours = await Tour.find(searchQuery)
+    .find(filter) 
+    .sort(sort)
+    .select(fields)
+    .limit(limit)
+    .skip(skip);
 
   const totalTours = await Tour.countDocuments();
 
-  const meta ={
-    page:page,
-    total:totalTours,
-    limit:limit
-  }
+  const totalPages = Math.ceil(totalTours / limit);
+
+  const meta = {
+    page: page,
+    limit: limit,
+    totalTours: totalTours,
+    totalPages: totalPages,
+  };
   return {
     data: tours,
-    meta: meta
+    meta: meta,
   };
 };
 
@@ -133,7 +134,6 @@ const updateTour = async (id: string, payload: Partial<ITour>) => {
   if (!existingTour) {
     throw new AppError(StatusCodes.BAD_REQUEST, "Tour not Found!");
   }
-
 
   const updatedTour = await Tour.findByIdAndUpdate(id, payload, {
     new: true,
