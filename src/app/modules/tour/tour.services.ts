@@ -84,6 +84,13 @@ const getAllTours = async (query : Record<string, string>) => {
   const sort = query.sort || "-createdAt";
   const fields = query.fields?.split(",").join(" ") || "";
 
+  const page = Number(query.page) || 1;
+  const limit = Number(query.limit) || 10;
+
+
+  const skip = (page - 1 ) * limit;
+
+
   // delete excluded fields from query 
   for (const field of excludedField) {
     // eslint-disable-next-line @typescript-eslint/no-dynamic-delete
@@ -97,15 +104,18 @@ const getAllTours = async (query : Record<string, string>) => {
   }
   
 
-  const tours = await Tour.find(searchQuery).find(filter).sort(sort).select(fields);
+  const tours = await Tour.find(searchQuery).find(filter).sort(sort).select(fields).limit(limit).skip(skip);
 
   const totalTours = await Tour.countDocuments();
 
+  const meta ={
+    page:page,
+    total:totalTours,
+    limit:limit
+  }
   return {
     data: tours,
-    meta: {
-      total: totalTours,
-    },
+    meta: meta
   };
 };
 
