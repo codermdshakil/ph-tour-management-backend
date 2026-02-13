@@ -92,7 +92,7 @@ const getAllTours = async (query: Record<string, string>) => {
 
     const [data, meta] = await Promise.all([
         tours.build(),
-        queryBuilder.getMeta()
+        tours.getMeta()
     ])
 
 

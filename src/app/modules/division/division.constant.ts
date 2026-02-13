@@ -1,0 +1,2 @@
+
+export const divisionSearchAbleFields = ["name", "description"];

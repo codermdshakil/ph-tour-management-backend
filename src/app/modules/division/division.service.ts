@@ -1,5 +1,7 @@
 import { StatusCodes } from "http-status-codes";
 import AppError from "../../errorHanlers/AppError";
+import { QueryBuilder } from "../../utils/QueryBuilder";
+import { divisionSearchAbleFields } from "./division.constant";
 import { IDivision } from "./division.interface";
 import { Division } from "./division.model";
 
@@ -21,16 +23,29 @@ const createDivision = async (payload: Partial<IDivision>) => {
 };
 
 // get all divisions
-const getAllDivisions = async () => {
-  const divisions = await Division.find({});
-  const totalDivisions = await Division.countDocuments();
+const getAllDivisions = async (query:Record<string, string>) => {
+  
+ const queryBuilder = new QueryBuilder(Division.find(), query)
 
-  return {
-    data: divisions,
-    meta: {
-      total: totalDivisions,
-    },
-  };
+    const divisions = await queryBuilder
+        .search(divisionSearchAbleFields)
+        .filter()
+        .sort()
+        .fields()
+        .paginate()
+
+    // const meta = await queryBuilder.getMeta()
+
+    const [data, meta] = await Promise.all([
+        divisions.build(),
+        divisions.getMeta()
+    ]);
+
+    return {
+      data,
+      meta
+    }
+  
 };
 
 const updateDivision = async (id: string, payload: Partial<IDivision>) => {
@@ -85,6 +100,7 @@ const getSingleDivision = async (slug: string) => {
     data: division,
   };
 };
+
 
 export const DivisionService = {
   createDivision,
