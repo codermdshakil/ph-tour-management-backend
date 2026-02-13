@@ -4,6 +4,8 @@ import { StatusCodes } from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
 import { envVars } from "../../config/env";
 import AppError from "../../errorHanlers/AppError";
+import { QueryBuilder } from "../../utils/QueryBuilder";
+import { userSearchAbleFields } from "./user.constant";
 import { IAuthProvider, IUser, Role } from "./user.interface";
 import { User } from "./user.model";
 
@@ -26,7 +28,7 @@ const createUser = async (payload: Partial<IUser>) => {
 
   const hashedPassword = await bcryptjs.hash(
     password as string,
-    parseInt(envVars.BCRYPTJS_SALT_ROUND)
+    parseInt(envVars.BCRYPTJS_SALT_ROUND),
   );
 
   const user = await User.create({
@@ -43,11 +45,10 @@ const createUser = async (payload: Partial<IUser>) => {
 const updateUser = async (
   userId: string,
   payload: Partial<IUser>,
-  decodedToken: JwtPayload
+  decodedToken: JwtPayload,
 ) => {
-
   /**
-   * 
+   *
    * check ifUserExist or not
    * email - can't update
    * name, phone, addres, password
@@ -62,19 +63,17 @@ const updateUser = async (
 
   const ifUserExist = await User.findById(userId);
 
-  if(!ifUserExist){
-    throw new AppError(StatusCodes.NOT_FOUND, "User not Found!!")
+  if (!ifUserExist) {
+    throw new AppError(StatusCodes.NOT_FOUND, "User not Found!!");
   }
- 
 
   if (payload.role) {
-   
     // jodi decodedToken a role user and guide thake tahole user er kono kichu update e korte dibo na
     if (decodedToken.role === Role.USER || decodedToken.role === Role.GUIDE) {
       throw new AppError(StatusCodes.FORBIDDEN, "You are not Authorized!!");
     }
 
-    // SUPER_ADMIN ke just SUPER_ADMIN e promote ba change korte parbe 
+    // SUPER_ADMIN ke just SUPER_ADMIN e promote ba change korte parbe
     // promoting to superadmin - only superadmin
 
     if (payload.role === Role.SUPER_ADMIN && decodedToken.role === Role.ADMIN) {
@@ -90,32 +89,55 @@ const updateUser = async (
   }
 
   // password re hashing
-  if(payload.password){
-    payload.password = await bcryptjs.hash(payload.password, parseInt(envVars.BCRYPTJS_SALT_ROUND));
-  };
+  if (payload.password) {
+    payload.password = await bcryptjs.hash(
+      payload.password,
+      parseInt(envVars.BCRYPTJS_SALT_ROUND),
+    );
+  }
 
-
-  const newUpdatedUser = await User.findByIdAndUpdate(userId,payload, {new:true, runValidators:true});
+  const newUpdatedUser = await User.findByIdAndUpdate(userId, payload, {
+    new: true,
+    runValidators: true,
+  });
 
   return newUpdatedUser;
-
 };
 
 // get allUsers
-const getAllUsers = async () => {
-  const users = await User.find({});
-  const totalUsers = await User.countDocuments();
+const getAllUsers = async (query : Record<string, string>) => {
+  const queryBuilder = new QueryBuilder(User.find(), query);
+
+  const users = await queryBuilder
+    .search(userSearchAbleFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate();
+
+  // const meta = await queryBuilder.getMeta()
+
+  const [data, meta] = await Promise.all([
+    users.build(),
+    users.getMeta(),
+  ]);
 
   return {
-    data: users,
-    meta: {
-      total: totalUsers,
-    },
+    data,
+    meta,
   };
 };
+
+const getSingleUser = async (id:string) => {
+const user = await User.findById(id);
+  return {
+    data: user,
+  };
+}
 
 export const UserServices = {
   createUser,
   updateUser,
   getAllUsers,
+  getSingleUser
 };
