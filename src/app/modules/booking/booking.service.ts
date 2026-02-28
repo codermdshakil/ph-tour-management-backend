@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable @typescript-eslint/no-empty-function */
 import { StatusCodes } from "http-status-codes";
 import AppError from "../../errorHanlers/AppError";
+import { QueryBuilder } from "../../utils/QueryBuilder";
 import { PAYMENT_STATUS } from "../payment/payment.interface";
 import { Payment } from "../payment/payment.model";
 import { ISSLCommerz } from "../sslCommerz/sslCommerz.interface";
 import { SSLService } from "../sslCommerz/sslCommerz.service";
 import { Tour } from "../tour/tour.model";
 import { User } from "../user/user.model";
+import { bookingSearchAbleFields } from "./booking.constant";
 import { BOOKING_STATUS, IBooking } from "./booking.interface";
 import { Booking } from "./booking.model";
 
@@ -117,20 +118,64 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
   }
 };
 
-const updateBookingStatus = () => {};
+const getSingleBooking = async (bookingId: string) => {
+  const result = await Booking.findByIdAndDelete(bookingId);
 
-const deleteBooking = () => {};
+  if (!result) {
+    throw new Error("Booking not found");
+  }
 
-const getSingleBooking = () => {};
-const getAllBookings = () => {};
+  return result;
+};
 
-const getUserBookings = () => {};
+const getAllBookings = async (query: Record<string, string>) => {
+  const queryBuilder = new QueryBuilder(Booking.find(), query);
+
+  const booking = await queryBuilder
+    .search(bookingSearchAbleFields)
+    .filter()
+    .sort()
+    .fields()
+    .paginate();
+
+  // const meta = await queryBuilder.getMeta()
+
+  const [data, meta] = await Promise.all([booking.build(), booking.getMeta()]);
+
+  return {
+    data,
+    meta,
+  };
+};
+
+const getUserBookings = async (userId: string) => {
+  const bookings = await Booking.find({ user: userId })
+    .populate("tour")
+    .populate("payment");
+
+  return bookings;
+};
+
+const updateBookingStatus = async (
+  bookingId: string,
+  payload: Partial<IBooking>,
+) => {
+  const booking = await Booking.findByIdAndUpdate(bookingId, payload, {
+    new: true, // return updated document
+    runValidators: true,
+  });
+
+  if (!booking) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Booking not found");
+  }
+
+  return booking;
+};
 
 export const BookingService = {
   createBooking,
-  updateBookingStatus,
-  deleteBooking,
-  getAllBookings,
   getSingleBooking,
+  getAllBookings,
+  updateBookingStatus,
   getUserBookings,
 };

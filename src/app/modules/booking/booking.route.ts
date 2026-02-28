@@ -16,7 +16,4 @@ router.patch("/:bookingId/status",  checkAuth(...Object.values(Role)), validateR
 
 
 
-
-
-
 export const bookingRoutes = router;
