@@ -30,6 +30,12 @@ interface EnvConfig {
     SSL_FAIL_FRONTEND_URL: string;
     SSL_CANCEL_FRONTEND_URL: string;
   };
+  CLOUDINARY: {
+    CLOUDINARY_CLOUD_NAME: string;
+    CLOUDINARY_API_KEY: string;
+    CLOUDINARY_API_SECRET: string;
+    CLOUDINARY_API_ENVIRONMENT_VARIABLE: string;
+  };
 }
 
 export const loadEnvVariables = (): EnvConfig => {
@@ -58,7 +64,11 @@ export const loadEnvVariables = (): EnvConfig => {
     "SSL_CANCEL_BACKEND_URL",
     "SSL_SUCCESS_FRONTEND_URL",
     "SSL_FAIL_FRONTEND_URL",
-    "SSL_CANCEL_FRONTEND_URL"
+    "SSL_CANCEL_FRONTEND_URL",
+    "CLOUDINARY_CLOUD_NAME",
+    "CLOUDINARY_API_KEY",
+    "CLOUDINARY_API_SECRET",
+    "CLOUDINARY_API_ENVIRONMENT_VARIABLE",
   ];
 
   // handle error of env elements
@@ -84,6 +94,7 @@ export const loadEnvVariables = (): EnvConfig => {
     GOOGLE_CALLBACK_URL: process.env.GOOGLE_CALLBACK_URL as string,
     EXPRESS_SESSION: process.env.EXPRESS_SESSION as string,
     FRONTEND_URL: process.env.FRONTEND_URL as string,
+
     // ssl
     SSL: {
       SSL_STORE_ID: process.env.SSL_STORE_ID as string,
@@ -96,6 +107,15 @@ export const loadEnvVariables = (): EnvConfig => {
       SSL_SUCCESS_FRONTEND_URL: process.env.SSL_SUCCESS_FRONTEND_URL as string,
       SSL_FAIL_FRONTEND_URL: process.env.SSL_FAIL_FRONTEND_URL as string,
       SSL_CANCEL_FRONTEND_URL: process.env.SSL_CANCEL_FRONTEND_URL as string,
+    },
+
+    // cloudinary
+    CLOUDINARY: {
+      CLOUDINARY_CLOUD_NAME: process.env.CLOUDINARY_CLOUD_NAME as string,
+      CLOUDINARY_API_KEY: process.env.CLOUDINARY_API_KEY as string,
+      CLOUDINARY_API_SECRET: process.env.CLOUDINARY_API_SECRET as string,
+      CLOUDINARY_API_ENVIRONMENT_VARIABLE: process.env
+        .CLOUDINARY_API_ENVIRONMENT_VARIABLE as string,
     },
   };
 };
