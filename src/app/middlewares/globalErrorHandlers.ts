@@ -3,6 +3,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
 import { NextFunction, Request, Response } from "express";
+import { deleteImageFromCloudinary } from "../config/cloudinary.config";
 import { envVars } from "../config/env";
 import AppError from "../errorHanlers/AppError";
 import { handleCastError } from "../helpers/handleCastError";
@@ -11,22 +12,31 @@ import { handleValidationError } from "../helpers/handleValidationError";
 import { handleZodError } from "../helpers/handleZodError";
 import { TErrorSources } from "../interfaces/error.types";
 
-export const globalErrorHandler = (
+export const globalErrorHandler = async (
   err: any,
   req: Request,
   res: Response,
   next: NextFunction,
 ) => {
+  if (envVars.NODE_ENV === "development") {
+    console.log(err);
+  }
+  console.log({ file: req.files });
+  if (req.file) {
+    await deleteImageFromCloudinary(req.file.path);
+  }
+
+  if (req.files && Array.isArray(req.files) && req.files.length) {
+    const imageUrls = (req.files as Express.Multer.File[]).map(
+      (file) => file.path,
+    );
+
+    await Promise.all(imageUrls.map((url) => deleteImageFromCloudinary(url)));
+  }
+
   let statusCode = 500;
   let message = "Someting want wrong!";
   let errorSources: TErrorSources[] = [];
-
-
-
-  // check
-  if (envVars.NODE_ENV === "development") {
-    console.log(err, "from global error handler");
-  }
 
   //  এর মানে হল err যদি  AppError  এর object হয় তাহলে  statusCode, message গুলু value পরিবর্তন হবে
   // mongoose duplicate error handle

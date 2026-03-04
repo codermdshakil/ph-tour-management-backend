@@ -44,7 +44,13 @@ const getAllDivisions = catchAsync( async (req, res) => {
 
 const updateDivision = catchAsync( async (req:Request, res:Response) => {
 
-    const updated = await DivisionService.updateDivision(req.params.id, req.body);
+     // payload for create division
+    const payload : IDivision = {
+        ...req.body,
+        thumbnail:req.file?.path
+    }
+
+    const updated = await DivisionService.updateDivision(req.params.id,payload);
 
     sendResponse(res, {
         success:true,
