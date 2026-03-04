@@ -2,10 +2,10 @@ import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
+import { ITour } from "./tour.interface";
 import { TourServices } from "./tour.services";
 
-
-// ------ TourType Starts here ---- 
+// ------ TourType Starts here ----
 
 const createTourType = catchAsync(async (req: Request, res: Response) => {
   const tourType = await TourServices.createTourType(req.body);
@@ -32,7 +32,6 @@ const updateTourType = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllTourType = catchAsync(async (req: Request, res: Response) => {
- 
   const result = await TourServices.getAllTourType();
 
   sendResponse(res, {
@@ -56,25 +55,37 @@ const deleteTourType = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-
-// Tours Controllers starts here 
+// Tours Controllers starts here
 
 const createTour = catchAsync(async (req: Request, res: Response) => {
-  const tour = await TourServices.createTour(req.body);
+  
+  
+  // based on imageArray create payload
+  const payload: ITour = {
+    ...req.body,
+    images: (req.files as Express.Multer.File[]).map(file => file.path)
+  };
+
+
+  // create tour
+  const result = await TourServices.createTour(payload);
 
   sendResponse(res, {
     success: true,
     statusCode: StatusCodes.CREATED,
     message: "Successfully created a Tour!",
-    data: tour,
+    data: result,
   });
+
+
 });
 
 const getAllTours = catchAsync(async (req: Request, res: Response) => {
-
   const query = req.query as Record<string, string>;
 
-  const result = await TourServices.getAllTours(query as Record<string, string>);
+  const result = await TourServices.getAllTours(
+    query as Record<string, string>,
+  );
 
   sendResponse(res, {
     success: true,
@@ -126,12 +137,12 @@ const deleteTour = catchAsync(async (req: Request, res: Response) => {
 
 export const TourControllers = {
   createTourType,
-  updateTourType, 
+  updateTourType,
   getAllTourType,
   deleteTourType,
   createTour,
   getAllTours,
   getSingleTour,
   updateTour,
-  deleteTour
+  deleteTour,
 };
