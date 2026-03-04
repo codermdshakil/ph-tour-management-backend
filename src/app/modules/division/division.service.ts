@@ -7,6 +7,7 @@ import { Division } from "./division.model";
 
 // create division
 const createDivision = async (payload: Partial<IDivision>) => {
+  
   const isExistingDivision = await Division.findOne({ name: payload.name });
 
 

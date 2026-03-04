@@ -24,10 +24,11 @@ app.use(expressSession({
 
 app.use(passport.initialize());
 app.use(passport.session());
-app.use(express.json());
+app.use(express.json()); // for object
 app.use(morgan('dev'));
 app.use(cors());
 app.use(cookieParser()); // এটি কুকি পার্স করতে সাহায্য করে
+app.use(express.urlencoded({extended:true})) // this middleware for formdata
 
 app.use("/api/v1", router);
 
