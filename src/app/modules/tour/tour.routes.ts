@@ -7,7 +7,7 @@ import { TourControllers } from "./tour.controller";
 import {
   createTourTypeZodSchema,
   createTourZodSchema,
-  updateTourZodSchema
+  updateTourZodSchema,
 } from "./tour.validation";
 
 const router = Router();
@@ -46,6 +46,7 @@ router.get("/:id", TourControllers.getSingleTour);
 router.patch(
   "/:id",
   checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+  multerUpload.array("files"),
   validateRequest(updateTourZodSchema),
   TourControllers.updateTour,
 );
