@@ -105,7 +105,7 @@ const updateUser = async (
 };
 
 // get allUsers
-const getAllUsers = async (query : Record<string, string>) => {
+const getAllUsers = async (query: Record<string, string>) => {
   const queryBuilder = new QueryBuilder(User.find(), query);
 
   const users = await queryBuilder
@@ -117,10 +117,7 @@ const getAllUsers = async (query : Record<string, string>) => {
 
   // const meta = await queryBuilder.getMeta()
 
-  const [data, meta] = await Promise.all([
-    users.build(),
-    users.getMeta(),
-  ]);
+  const [data, meta] = await Promise.all([users.build(), users.getMeta()]);
 
   return {
     data,
@@ -128,16 +125,29 @@ const getAllUsers = async (query : Record<string, string>) => {
   };
 };
 
-const getSingleUser = async (id:string) => {
-const user = await User.findById(id);
+
+// get User information
+const getMe = async (userId:string) => {
+
+  const user = await User.findById(userId).select("-password");
+
   return {
     data: user,
   };
-}
+
+};
+
+const getSingleUser = async (id: string) => {
+  const user = await User.findById(id).select("-password");
+  return {
+    data: user,
+  };
+};
 
 export const UserServices = {
   createUser,
   updateUser,
   getAllUsers,
-  getSingleUser
+  getMe,
+  getSingleUser,
 };

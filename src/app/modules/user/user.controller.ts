@@ -36,9 +36,9 @@ import { UserServices } from "./user.service";
 // };
 
 // create user using CatchAsync
-const createUser = catchAsync( async (req: Request, res: Response, next: NextFunction) => {  
-  
-  const user = await UserServices.createUser(req.body);
+const createUser = catchAsync(
+  async (req: Request, res: Response, next: NextFunction) => {
+    const user = await UserServices.createUser(req.body);
 
     sendResponse(res, {
       success: true,
@@ -46,7 +46,7 @@ const createUser = catchAsync( async (req: Request, res: Response, next: NextFun
       message: "Succcessfully created a user!!",
       data: user,
     });
-  }
+  },
 );
 
 // create user using CatchAsync
@@ -54,7 +54,7 @@ const updateUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
     // userId
     const userId = req.params.id;
-   
+
     const payload = req.body;
 
     // payload
@@ -69,16 +69,17 @@ const updateUser = catchAsync(
       message: "Succcessfully Updated a user!!",
       data: user,
     });
-  }
+  },
 );
 
 // getAllUser
 const getAllUsers = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
+    const query = req.query as Record<string, string>;
 
-    const query = req.query as Record<string,string>;
-
-    const result = await UserServices.getAllUsers(query as Record<string,string>);
+    const result = await UserServices.getAllUsers(
+      query as Record<string, string>,
+    );
 
     sendResponse(res, {
       success: true,
@@ -87,13 +88,26 @@ const getAllUsers = catchAsync(
       data: result.data,
       meta: result.meta,
     });
-  }
+  },
+);
+
+const getMe = catchAsync( async (req: Request, res: Response, next: NextFunction) => {
+   
+    const decodedToken = req.user as JwtPayload;
+    const result = await UserServices.getMe(decodedToken.userId);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: StatusCodes.OK,
+      message: "Your Profile retrived successfully!",
+      data: result.data
+    });
+  },
 );
 
 // getAllUser
 const getSingleUser = catchAsync(
   async (req: Request, res: Response, next: NextFunction) => {
-
     const id = req.params.id;
 
     const result = await UserServices.getSingleUser(id);
@@ -104,15 +118,15 @@ const getSingleUser = catchAsync(
       message: "Get a user successfully!",
       data: result.data,
     });
-  }
+  },
 );
-
 
 export const UserControllers = {
   createUser,
   updateUser,
   getAllUsers,
-  getSingleUser
+  getMe,
+  getSingleUser,
 };
 
 // route matching - controller - service - model - DB
