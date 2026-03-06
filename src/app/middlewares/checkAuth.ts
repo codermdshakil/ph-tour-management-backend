@@ -20,32 +20,28 @@ export const checkAuth =
       }
 
       // 2. get verified token
-      const verifiedToken = verifyToken(
-        accessToken,
-        envVars.JWT_ACCESS_SECRET,
-      ) as JwtPayload;
+      const verifiedToken = verifyToken(  accessToken, envVars.JWT_ACCESS_SECRET,) as JwtPayload;
 
       // user validation check
 
       const isUserExist = await User.findOne({ email: verifiedToken.email });
 
       if (!isUserExist) {
-        throw new AppError(StatusCodes.BAD_REQUEST, "User not Found!!");
+        throw new AppError(StatusCodes.BAD_REQUEST, "User does not Found!!");
       }
 
-      if (
-        isUserExist.isActive === IsActive.BLOCKED ||
-        isUserExist.isActive === IsActive.INACTIVE
-      ) {
-        throw new AppError(
-          StatusCodes.BAD_REQUEST,
-          `User is ${isUserExist.isActive}!!`,
-        );
+      if ( isUserExist.isActive === IsActive.BLOCKED || isUserExist.isActive === IsActive.INACTIVE) {
+        throw new AppError( StatusCodes.BAD_REQUEST, `User is ${isUserExist.isActive}!!`);
       }
 
       if (isUserExist.isDeleted) {
         throw new AppError(StatusCodes.BAD_REQUEST, "User is Deleted!!");
       }
+      
+      if (!isUserExist.isVerified) {
+        throw new AppError(StatusCodes.BAD_REQUEST, "User is not verified!!");
+      }
+
       
 
       // handle error
@@ -54,10 +50,7 @@ export const checkAuth =
       }
 
       if (!AuthRoles.includes(verifiedToken.role)) {
-        throw new AppError(
-          StatusCodes.BAD_REQUEST,
-          "You are not permitted to view this Route!",
-        );
+        throw new AppError( StatusCodes.BAD_REQUEST, "You are not permitted to view this Route!");
       }
 
       req.user = verifiedToken;
