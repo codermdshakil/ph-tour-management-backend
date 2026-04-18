@@ -28,7 +28,7 @@ interface SendEmailOptions {
   }[];
 }
 
-export const sentEmail = async ({
+export const sendEmail = async ({
   to,
   subject,
   templateName,
@@ -58,6 +58,8 @@ export const sentEmail = async ({
     });
 
     console.log(`\u2709\uFE0F Email sent to ${to}: ${info.messageId}`);
+
+
 
   } catch (error : any) {
 

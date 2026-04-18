@@ -176,6 +176,22 @@ const googleCallbackController = catchAsync(
   },
 );
 
+
+const forgetPassword = catchAsync(  async (req: Request, res: Response, next: NextFunction) => {
+
+    const { email } = req.body;
+
+    await AuthServices.forgetPassword(email);
+
+    sendResponse(res, {
+      success: true,
+      statusCode: StatusCodes.OK,
+      message: "Email send Successfully",
+      data: null,
+    });
+  },
+);
+
 export const AuthControllers = {
   credentialsLogin,
   getNewAccessToken,
@@ -183,5 +199,6 @@ export const AuthControllers = {
   resetPassword,
   changePassword,
   setPassword,
+  forgetPassword,
   googleCallbackController,
 };
