@@ -30,6 +30,7 @@ export interface IUser{
   password?:string;
   phone?:string;
   picture?:string;
+  NID_Photo?:string;
   address?:string;
   isDeleted?:string;
   isActive?:IsActive;
