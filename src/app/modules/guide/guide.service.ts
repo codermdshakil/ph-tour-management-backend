@@ -2,9 +2,11 @@ import { StatusCodes } from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
 import mongoose from "mongoose";
 import AppError from "../../errorHanlers/AppError";
+import { QueryBuilder } from "../../utils/QueryBuilder";
 import { Division } from "../division/division.model";
 import { Role } from "../user/user.interface";
 import { User } from "../user/user.model";
+import { guideApplicationSearchAbleFields } from "./guide.constant";
 import { IGuideApplication } from "./guide.interface";
 import { GuideApplication } from "./guide.model";
 
@@ -52,8 +54,6 @@ const applyForGuide = async (user: JwtPayload, payload: JwtPayload) => {
 
   return result;
 };
-
-
 
 
 const updateGuideApplicationStatus = async (
@@ -125,7 +125,54 @@ const updateGuideApplicationStatus = async (
 };
 
 
+const getSingleApplication = async (applicationId: string) => {
+  // 1. Validate ObjectId
+  if (!mongoose.Types.ObjectId.isValid(applicationId)) {
+    throw new AppError(400, "Invalid application ID");
+  }
+
+  // 2. Find application by ID
+  const application = await GuideApplication.findById(applicationId)
+    .populate("user", "-password -__v")
+    .populate("division", "-__v");
+
+  if (!application) {
+    throw new AppError(StatusCodes.NOT_FOUND, "Application not found");
+  }
+
+  return application;
+};
+
+
+const getAllGuides = async (query:Record<string, string>) => {
+
+   const queryBuilder = new QueryBuilder(GuideApplication.find(), query);
+
+ const guides = await queryBuilder
+        .search(guideApplicationSearchAbleFields)
+        .filter()
+        .sort()
+        .fields()
+        .paginate()
+
+    // const meta = await queryBuilder.getMeta()
+
+    const [data, meta] = await Promise.all([
+        guides.build(),
+        guides.getMeta()
+    ]);
+
+    return {
+      data,
+      meta
+    }
+}
+
+
+
 export const GuideServices = {
   applyForGuide,
   updateGuideApplicationStatus,
+  getSingleApplication,
+  getAllGuides
 };

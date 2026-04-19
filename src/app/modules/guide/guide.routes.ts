@@ -16,11 +16,24 @@ router.post(
   GuideControllers.applyForGuide,
 );
 
+router.get(
+  "/:id",
+  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+  GuideControllers.getSingleApplication,
+);
+
 router.patch(
   "/approve/:id",
   checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
   GuideControllers.updateGuideApplicationStatus,
 );
+
+router.get(
+  "/",
+  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+  GuideControllers.getAllGuides,
+);
+
 
 
 

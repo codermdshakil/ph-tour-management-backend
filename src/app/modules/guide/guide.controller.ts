@@ -69,7 +69,35 @@ const updateGuideApplicationStatus = catchAsync(
   },
 );
 
+const getSingleApplication = catchAsync(async (req: Request, res: Response) => {
+  const applicationId = req.params.id;
+
+  const result = await GuideServices.getSingleApplication(applicationId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "Guide Application retrieved successfully!",
+    data: result,
+  });
+});
+
+const getAllGuides = catchAsync(async (req: Request, res: Response) => {
+  const query = req.query as Record<string, string>;
+
+  const result = await GuideServices.getAllGuides(query as Record<string, string>);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "Guide Status Updated Successfully!",
+    data: result,
+  });
+});
+
 export const GuideControllers = {
   applyForGuide,
   updateGuideApplicationStatus,
+  getSingleApplication,
+  getAllGuides,
 };
