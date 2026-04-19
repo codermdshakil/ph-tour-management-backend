@@ -43,6 +43,12 @@ interface EnvConfig {
     SMTP_PASS: string;
     SMTP_FROM: string;
   };
+  REDIS: {
+    REDIS_HOST: string;
+    REDIS_PORT: string;
+    REDIS_USERNAME: string;
+    REDIS_PASSWORD: string;
+  };
 }
 
 export const loadEnvVariables = (): EnvConfig => {
@@ -81,6 +87,10 @@ export const loadEnvVariables = (): EnvConfig => {
     "SMTP_USER",
     "SMTP_PASS",
     "SMTP_FROM",
+    "REDIS_HOST",
+"REDIS_PORT",
+"REDIS_USERNAME",
+"REDIS_PASSWORD"
   ];
 
   // handle error of env elements
@@ -129,6 +139,7 @@ export const loadEnvVariables = (): EnvConfig => {
       CLOUDINARY_API_ENVIRONMENT_VARIABLE: process.env
         .CLOUDINARY_API_ENVIRONMENT_VARIABLE as string,
     },
+
     EMAIL_SENDER: {
       SMTP_HOST: process.env.SMTP_HOST as string,
       SMTP_PORT: process.env.SMTP_PORT as string,
@@ -136,6 +147,12 @@ export const loadEnvVariables = (): EnvConfig => {
       SMTP_PASS: process.env.SMTP_PASS as string,
       SMTP_FROM: process.env.SMTP_FROM as string,
     },
+    REDIS: {
+      REDIS_HOST:process.env.REDIS_HOST as string,
+      REDIS_PORT:process.env.REDIS_PORT as string,
+      REDIS_USERNAME:process.env.REDIS_USERNAME as string,
+      REDIS_PASSWORD:process.env.REDIS_PASSWORD as string,
+    }
   };
 };
 
