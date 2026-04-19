@@ -1,5 +1,6 @@
 import { StatusCodes } from "http-status-codes";
 import { JwtPayload } from "jsonwebtoken";
+import mongoose from "mongoose";
 import AppError from "../../errorHanlers/AppError";
 import { Division } from "../division/division.model";
 import { Role } from "../user/user.interface";
@@ -7,7 +8,7 @@ import { User } from "../user/user.model";
 import { IGuideApplication } from "./guide.interface";
 import { GuideApplication } from "./guide.model";
 
-const applyForGuide = async (user:JwtPayload, payload: JwtPayload) => {
+const applyForGuide = async (user: JwtPayload, payload: JwtPayload) => {
   // user exist or role valid check
 
   const isUserExist = await User.findById(user.userId);
@@ -21,7 +22,9 @@ const applyForGuide = async (user:JwtPayload, payload: JwtPayload) => {
   }
 
   // Duplicate Application Check
-  const existingApplication = await GuideApplication.findOne({ user: user.userId });
+  const existingApplication = await GuideApplication.findOne({
+    user: user.userId,
+  });
   if (existingApplication) {
     throw new AppError(400, "You have already applied for guide");
   }
@@ -47,10 +50,82 @@ const applyForGuide = async (user:JwtPayload, payload: JwtPayload) => {
 
   const result = await GuideApplication.create(applicationData);
 
-
   return result;
 };
 
+
+
+
+const updateGuideApplicationStatus = async (
+  user: JwtPayload,
+  applicationId: string,
+  status: "APPROVED" | "REJECTED",
+) => {
+  // 1. Authorization
+  if (![Role.ADMIN, Role.SUPER_ADMIN].includes(user.role)) {
+    throw new AppError(403, "Unauthorized");
+  }
+
+  // 2. Validate ObjectId
+  if (!mongoose.Types.ObjectId.isValid(applicationId)) {
+    throw new AppError(400, "Invalid application ID");
+  }
+
+  const session = await mongoose.startSession();
+  session.startTransaction();
+
+  try {
+    // 3. Find application (WITH session)
+    const application = await GuideApplication.findById(applicationId).session(session);
+
+    if (!application) {
+      throw new AppError(404, "Application not found");
+    }
+
+    // 4. State validation
+    if (application.status !== "PENDING") {
+      throw new AppError(400, "Application already processed");
+    }
+
+    // 5. Get user (WITH session)
+    const targetUser = await User.findById(application.user).session(session);
+
+    if (!targetUser) {
+      throw new AppError(404, "Associated user not found");
+    }
+
+    // 6. Update application status
+    application.status = status;
+    await application.save({ session });
+
+    // 7. Update user role (only if approved)
+    if (status === "APPROVED") {
+      await User.findByIdAndUpdate(
+        application.user,
+        { role: Role.GUIDE },
+        { session },
+      );
+    }
+
+    // 8. Final populated result (single query reuse)
+    const updatedApplication = await GuideApplication.findById(applicationId)
+      .populate("user", "-password -__v")
+      .populate("division", "-__v")
+      .session(session);
+
+    await session.commitTransaction();
+    return updatedApplication;
+
+  } catch (error) {
+    await session.abortTransaction();
+    throw error;
+  } finally {
+    session.endSession();
+  }
+};
+
+
 export const GuideServices = {
   applyForGuide,
+  updateGuideApplicationStatus,
 };

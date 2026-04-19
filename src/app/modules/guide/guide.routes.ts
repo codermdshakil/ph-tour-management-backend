@@ -16,4 +16,12 @@ router.post(
   GuideControllers.applyForGuide,
 );
 
+router.patch(
+  "/approve/:id",
+  checkAuth(Role.ADMIN, Role.SUPER_ADMIN),
+  GuideControllers.updateGuideApplicationStatus,
+);
+
+
+
 export const GuideRoutes = router;
