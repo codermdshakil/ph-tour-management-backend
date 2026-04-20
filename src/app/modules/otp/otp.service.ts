@@ -16,6 +16,21 @@ const generateOTP = (length = 6) => {
 };
 
 const sentOTP = async (email: string, name: string) => {
+  // user check
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new AppError(StatusCodes.NOT_FOUND, "User Not Found!");
+  }
+
+  if (user.isVerified) {
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      `${user.name} is Already Verified User!!`,
+    );
+  }
+
   // store otp in redis DB with key,value and expiration
 
   const otp = generateOTP(); // value
@@ -43,21 +58,37 @@ const sentOTP = async (email: string, name: string) => {
 };
 
 const verifyOTP = async (email: string, otp: string) => {
+  // user check
+
+  const user = await User.findOne({ email });
+
+  if (!user) {
+    throw new AppError(StatusCodes.NOT_FOUND, "User Not Found!");
+  }
+
+  if (user.isVerified) {
+    throw new AppError(
+      StatusCodes.BAD_REQUEST,
+      `${user.name} is Already Verified User!!`,
+    );
+  }
+
   const redisKey = `otp:${email}`;
 
   const savedOTP = await redisClient.get(redisKey);
 
   if (!savedOTP) {
-     throw new AppError(StatusCodes.BAD_REQUEST, "Invalid OTP!");
+    throw new AppError(StatusCodes.BAD_REQUEST, "Invalid OTP!");
   }
 
   if (savedOTP !== otp) {
     throw new AppError(StatusCodes.BAD_REQUEST, "Invalid OTP!");
   }
 
-  await User.updateOne({email}, {isVerified:true}, {runValidators:true});
-  await redisClient.del(redisKey);
-
+  await Promise.all([
+    User.updateOne({ email }, { isVerified: true }, { runValidators: true }),
+    redisClient.del(redisKey),
+  ]);
 };
 
 export const OTPService = {
