@@ -1,18 +1,14 @@
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
-import { JwtPayload } from "jsonwebtoken";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
-import { IUser } from "../user/user.interface";
-import { User } from "../user/user.model";
 import { OTPService } from "./otp.service";
 
 const sentOTP = catchAsync(async (req: Request, res: Response) => {
 
-  const userInfo = req.user as JwtPayload;
-  const user = await User.findById(userInfo.userId) as IUser;
+  const {email, name} = req.body;
   
-  await OTPService.sentOTP(user?.email, user?.name);
+  await OTPService.sentOTP(email, name);
 
   sendResponse(res, {
     success: true,
@@ -23,7 +19,10 @@ const sentOTP = catchAsync(async (req: Request, res: Response) => {
 });
 
 const verifyOTP = catchAsync(async (req: Request, res: Response) => {
-  // const result = await GuideServices.getSingleApplication(applicationId);
+  
+  const {email, otp} = req.body;
+
+  await OTPService.verifyOTP(email, otp);
 
   sendResponse(res, {
     success: true,
