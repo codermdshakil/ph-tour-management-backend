@@ -8,6 +8,8 @@ router.post("/init-payment/:bookingId", paymentControllers.initPayment)
 router.post("/success", paymentControllers.successPayment);
 router.post("/fail", paymentControllers.failPayment);
 router.post("/cancel", paymentControllers.cancelPayment);
+router.get("/invoice/:paymentId",paymentControllers.getInvoiceDownloadUrl);
+
 
 
 
