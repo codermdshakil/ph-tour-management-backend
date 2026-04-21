@@ -99,15 +99,20 @@ const successPayment = async (query: Record<string, string>) => {
 
     // invoice download URL link get from clodianry
 
-    const cloudinaryResult = await uploadBufferToCloudinary(pdfBuffer, "invoice");
+    const cloudinaryResult = await uploadBufferToCloudinary(
+      pdfBuffer,
+      "invoice",
+    );
 
-    if(!cloudinaryResult){
-      throw new AppError(401, "Cloudinary Result not Found!")
+    if (!cloudinaryResult) {
+      throw new AppError(401, "Cloudinary Result not Found!");
     }
 
-    await Payment.findByIdAndUpdate(updatedPayment._id, {invoiceUrl:cloudinaryResult.secure_url}, {runValidators:true, session});
-
-
+    await Payment.findByIdAndUpdate(
+      updatedPayment._id,
+      { invoiceUrl: cloudinaryResult.secure_url },
+      { runValidators: true, session },
+    );
 
     // sent email to user
     await sendEmail({
@@ -128,7 +133,6 @@ const successPayment = async (query: Record<string, string>) => {
     session.endSession();
 
     return { success: true, message: "Payment Completed SuccessFully" };
-
   } catch (error: any) {
     // ai khane jodi whole process a kono error hoy sob kisu bad diye dibe
     await session.abortTransaction(); // rollback
@@ -201,26 +205,27 @@ const cancelPayment = async (query: Record<string, string>) => {
   }
 };
 
-const getInvoiceDownloadUrl = async (paymentId:string) => {
+const getInvoiceDownloadUrl = async (
+  paymentId: string,
+) => {
 
-  const payment = await Payment.findById(paymentId).select("invoiceUrl -_id");
+  const payment = await Payment.findById(paymentId).select("invoiceUrl booking -_id");
 
-  if(!payment){
-    throw new AppError(401, "Payment not found!")
+  if (!payment) {
+    throw new AppError(401, "Payment not found!");
   }
 
-  if(!payment.invoiceUrl){
-    throw new AppError(401, "Payment Invoice URL not found!")
+  if (!payment.invoiceUrl) {
+    throw new AppError(401, "Payment Invoice URL not found!");
   }
 
-
-  return payment
-}
+  return payment;
+};
 
 export const paymentService = {
   initPayment,
   successPayment,
   failPayment,
   cancelPayment,
-  getInvoiceDownloadUrl
+  getInvoiceDownloadUrl,
 };
