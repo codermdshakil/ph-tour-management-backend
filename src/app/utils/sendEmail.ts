@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import ejs from "ejs";
 import { StatusCodes } from "http-status-codes";
@@ -23,7 +24,7 @@ interface SendEmailOptions {
   templateData?: Record<string, any>;
   attachments?: {
     filename: string;
-    content: Buffer | string;
+    content: Buffer |string;
     contentType: string;
   }[];
 }
