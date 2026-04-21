@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { StatusCodes } from "http-status-codes";
+import { uploadBufferToCloudinary } from "../../config/cloudinary.config";
 import AppError from "../../errorHanlers/AppError";
 import { generatePdf, IInvoiceData } from "../../utils/generateInvoice";
 import { sendEmail } from "../../utils/sendEmail";
@@ -96,10 +97,19 @@ const successPayment = async (query: Record<string, string>) => {
 
     const pdfBuffer = await generatePdf(invoiceData);
 
+    // invoice download URL link get from clodianry
+
+    const cloudinaryResult = await uploadBufferToCloudinary(pdfBuffer, "invoice");
+
+    if(!cloudinaryResult){
+      throw new AppError(401, "Cloudinary Result not Found!")
+    }
+
+    await Payment.findByIdAndUpdate(updatedPayment._id, {invoiceUrl:cloudinaryResult.secure_url}, {runValidators:true, session});
+
+
+
     // sent email to user
-
-    console.log("hit..");
-
     await sendEmail({
       to: (updatedBooking.user as unknown as IUser).email,
       subject: "Your Booking Invoice",
