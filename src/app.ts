@@ -26,7 +26,10 @@ app.use(passport.initialize());
 app.use(passport.session());
 app.use(express.json()); // for object
 app.use(morgan('dev'));
-app.use(cors());
+app.use(cors({
+  origin:envVars.FRONTEND_URL, // Important - [Frontend URL a shes a kono localhost:5173[/] ai slash thaka jabe na localhost:5173 amon hote hobe]
+  credentials:true
+}));
 app.use(cookieParser()); // এটি কুকি পার্স করতে সাহায্য করে
 app.use(express.urlencoded({extended:true})) // this middleware for formdata
 

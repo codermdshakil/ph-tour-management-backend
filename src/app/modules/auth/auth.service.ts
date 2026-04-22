@@ -60,7 +60,7 @@ const changePassword = async (
 
   const isOldPasswordMatched = await bcryptjs.compare(
     oldPassword,
-    user!.password as string,
+    user!.password as string, 
   );
 
   if (!isOldPasswordMatched) {
