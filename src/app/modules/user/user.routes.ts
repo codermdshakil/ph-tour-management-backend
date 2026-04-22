@@ -25,13 +25,10 @@ router.get(
   UserControllers.getMe,
 );
 
-router.patch(
-  "/:id",
-  validateRequest(updateUserZodSchema),
-  checkAuth(...Object.values(Role)),
-  UserControllers.updateUser,
-);
+router.get("/:id",  checkAuth(Role.ADMIN, Role.SUPER_ADMIN) , UserControllers.getSingleUser);
 
-router.get("/:id", UserControllers.getSingleUser);
+router.patch( "/:id", validateRequest(updateUserZodSchema), checkAuth(...Object.values(Role)), UserControllers.updateUser);
+
+
 
 export const UserRoutes = router;
