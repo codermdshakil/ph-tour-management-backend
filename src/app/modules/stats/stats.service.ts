@@ -204,6 +204,7 @@ const getTourStats = async () => {
 };
 
 const getBookingStats = async () => {
+
   const totalBookingPromise = Booking.countDocuments();
 
   const totalBookingByStatusPromise = Booking.aggregate([
@@ -216,15 +217,75 @@ const getBookingStats = async () => {
     },
   ]);
 
-  const booking
+  const bookingPerTourPromise = Booking.aggregate([
+    {
+      // stage-1 group with tour
+      $group:{
+        _id:"$tour",
+        bookingCount:{$sum:1}
+      }
+    },
+    {
+      // stage-2 sorting decending order
+      $sort:{bookingCount:-1}
+    },
+    {
+      // stage-3: limit
+      $limit:10
+    },
+    {
+      $lookup:{
+        from:"tours",
+        localField:"_id",
+        foreignField:"_id",
+        as:"tour"
+      }
+    },
+    {
+      // stage-4: unwind stage
+      $unwind:"$tour"
+    },
+    {
+      // stage-4: project state
+      $project:{
+        bookingCount:1,
+        "tour.title":1,
+        "tour.slug":1,
+        "tour.costFrom":1,
+        "tour.include":1,
+      }
+    }
 
 
-  const [totalBooking, totalBookingByStatus] = await Promise.all([
-    totalBookingPromise,
-    totalBookingByStatusPromise,
   ]);
 
-  return { totalBooking, totalBookingByStatus };
+  const avgGuestsPerBookingPromise = Booking.aggregate([
+    // 1  - grouping 
+    {
+      $group:{
+        _id:null,
+        avgGuestCount:{$avg:"$guestCount"}
+      }
+    }
+  ]);
+
+  const bookingLast7DaysAgoPromise = Booking.countDocuments({createdAt:{$gte:sevenDaysAgo}});
+  const bookingLast30DaysAgoPromise = Booking.countDocuments({createdAt:{$gte:thirtyDaysAgo}});
+
+
+
+
+  const [totalBooking, totalBookingByStatus, bookingPerTour, avgGuestsPerBooking, bookingLast7DaysAgo, bookingLast30DaysAgo] = await Promise.all([
+    totalBookingPromise,
+    totalBookingByStatusPromise,
+    bookingPerTourPromise,
+    avgGuestsPerBookingPromise,
+    bookingLast7DaysAgoPromise,
+    bookingLast30DaysAgoPromise
+    
+  ]);
+
+  return { totalBooking, totalBookingByStatus,bookingPerTour, avgGuestsPerBooking, bookingLast7DaysAgo, bookingLast30DaysAgo };
 
 };
 
