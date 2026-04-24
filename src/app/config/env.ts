@@ -29,6 +29,7 @@ interface EnvConfig {
     SSL_SUCCESS_FRONTEND_URL: string;
     SSL_FAIL_FRONTEND_URL: string;
     SSL_CANCEL_FRONTEND_URL: string;
+    SSL_IPN_URL: string;
   };
   CLOUDINARY: {
     CLOUDINARY_CLOUD_NAME: string;
@@ -70,6 +71,7 @@ export const loadEnvVariables = (): EnvConfig => {
     "FRONTEND_URL",
     "SSL_STORE_ID",
     "SSL_STORE_PASS",
+    "SSL_IPN_URL",
     "SSL_PAYMENT_API",
     "SSL_VALIDATION_API",
     "SSL_SUCCESS_BACKEND_URL",
@@ -88,9 +90,9 @@ export const loadEnvVariables = (): EnvConfig => {
     "SMTP_PASS",
     "SMTP_FROM",
     "REDIS_HOST",
-"REDIS_PORT",
-"REDIS_USERNAME",
-"REDIS_PASSWORD"
+    "REDIS_PORT",
+    "REDIS_USERNAME",
+    "REDIS_PASSWORD",
   ];
 
   // handle error of env elements
@@ -129,6 +131,7 @@ export const loadEnvVariables = (): EnvConfig => {
       SSL_SUCCESS_FRONTEND_URL: process.env.SSL_SUCCESS_FRONTEND_URL as string,
       SSL_FAIL_FRONTEND_URL: process.env.SSL_FAIL_FRONTEND_URL as string,
       SSL_CANCEL_FRONTEND_URL: process.env.SSL_CANCEL_FRONTEND_URL as string,
+      SSL_IPN_URL: process.env.SSL_IPN_URL as string
     },
 
     // cloudinary
@@ -148,11 +151,11 @@ export const loadEnvVariables = (): EnvConfig => {
       SMTP_FROM: process.env.SMTP_FROM as string,
     },
     REDIS: {
-      REDIS_HOST:process.env.REDIS_HOST as string,
-      REDIS_PORT:process.env.REDIS_PORT as string,
-      REDIS_USERNAME:process.env.REDIS_USERNAME as string,
-      REDIS_PASSWORD:process.env.REDIS_PASSWORD as string,
-    }
+      REDIS_HOST: process.env.REDIS_HOST as string,
+      REDIS_PORT: process.env.REDIS_PORT as string,
+      REDIS_USERNAME: process.env.REDIS_USERNAME as string,
+      REDIS_PASSWORD: process.env.REDIS_PASSWORD as string,
+    },
   };
 };
 

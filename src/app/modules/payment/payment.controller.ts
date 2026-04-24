@@ -1,8 +1,10 @@
+/* eslint-disable no-console */
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { envVars } from "../../config/env";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
+import { SSLService } from "../sslCommerz/sslCommerz.service";
 import { paymentService } from "./payment.services";
 
 const initPayment = catchAsync(async (req: Request, res: Response) => {
@@ -18,6 +20,22 @@ const initPayment = catchAsync(async (req: Request, res: Response) => {
   });
 
 });
+
+const validatePayment = catchAsync(async (req: Request, res: Response) => {
+
+  console.log("SSl commerz IPN url request body - ", req.body);
+  const result = await SSLService.validatePayment(req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: StatusCodes.OK,
+    message: "Successfully Payment Validated!!",
+    data: result,
+  });
+
+});
+
+
 
 const successPayment = catchAsync(async (req: Request, res: Response) => {
   const query = req.query;
@@ -58,7 +76,6 @@ const cancelPayment = async (req: Request, res: Response) => {
   }
 };
 
-
 const getInvoiceDownloadUrl =  catchAsync(async (req:Request, res:Response) => {
 
   const paymentId = req.params.paymentId;
@@ -75,6 +92,7 @@ const getInvoiceDownloadUrl =  catchAsync(async (req:Request, res:Response) => {
 
 export const paymentControllers = {
   initPayment,
+  validatePayment,
   successPayment,
   failPayment,
   cancelPayment,
