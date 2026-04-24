@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import { StatusCodes } from "http-status-codes";
 import { catchAsync } from "../../utils/catchAsync";
 import { sendResponse } from "../../utils/sendResponse";
 import { StatsService } from "./stats.service";
@@ -27,32 +26,30 @@ const getTourStats = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getBookingStats = catchAsync(async (req: Request, res: Response) => {
-  const query = req.query as Record<string, string>;
+  const stats = await StatsService.getBookingStats();
 
-  const result = await StatsService.getBookingStats(query);
-
-  sendResponse(res, {
-    success: true,
-    statusCode: StatusCodes.OK,
-    message: "Booking statistics retrieved successfully",
-    // data: result.data,
-    // meta: result.meta,
-  });
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "User tours fetched successfully",
+        data: stats,
+    });
 });
 
 const getPaymentStats = catchAsync(async (req: Request, res: Response) => {
-  const query = req.query as Record<string, string>;
+  const stats = await StatsService.getPaymentStats();
 
-  const result = await StatsService.getBookingStats(query);
-
-  sendResponse(res, {
-    success: true,
-    statusCode: StatusCodes.OK,
-    message: "Booking statistics retrieved successfully",
-    // data: result.data,
-    // meta: result.meta,
-  });
+    sendResponse(res, {
+        statusCode: 200,
+        success: true,
+        message: "User tours fetched successfully",
+        data: stats,
+    });
 });
+
+ 
+
+ 
 
 
 

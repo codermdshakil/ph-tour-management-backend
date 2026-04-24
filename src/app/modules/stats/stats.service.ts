@@ -68,7 +68,6 @@ const getUserStats = async () => {
 };
 
 const getTourStats = async () => {
-
   const totalTourPromise = Tour.countDocuments();
 
   const totalTourByTourTypePromise = Tour.aggregate([
@@ -169,20 +168,17 @@ const getTourStats = async () => {
     {
       $unwind: "$tour",
     },
-      // stage-6: projects stage
-      {
-        $project:{
-          bookingCount:1,
-          "tour.title":1,
-          "tour.slug":1,
-          "tour.costFrom":1,
-          "tour.maxGuest":1,
-        }
-      }
+    // stage-6: projects stage
+    {
+      $project: {
+        bookingCount: 1,
+        "tour.title": 1,
+        "tour.slug": 1,
+        "tour.costFrom": 1,
+        "tour.maxGuest": 1,
+      },
+    },
   ]);
-
-
-  
 
   const [
     totalTour,
@@ -208,8 +204,31 @@ const getTourStats = async () => {
 };
 
 const getBookingStats = async () => {
-  return {};
+  const totalBookingPromise = Booking.countDocuments();
+
+  const totalBookingByStatusPromise = Booking.aggregate([
+    // group-1 group stage
+    {
+      $group: {
+        _id: "$status",
+        count:{$sum:1}
+      },
+    },
+  ]);
+
+  const booking
+
+
+  const [totalBooking, totalBookingByStatus] = await Promise.all([
+    totalBookingPromise,
+    totalBookingByStatusPromise,
+  ]);
+
+  return { totalBooking, totalBookingByStatus };
+
 };
+
+
 
 const getPaymentStats = async () => {
   return {};
