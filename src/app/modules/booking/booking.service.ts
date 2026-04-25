@@ -42,7 +42,7 @@ const createBooking = async (payload: Partial<IBooking>, userId: string) => {
     if (!user?.phone || !user?.address) {
       throw new AppError(
         StatusCodes.BAD_REQUEST,
-        "Pleaes, Update your Profile to book a Tour!",
+        "Pleaes, Update your Profile including Phone and Address to book a Tour!",
       );
     }
 

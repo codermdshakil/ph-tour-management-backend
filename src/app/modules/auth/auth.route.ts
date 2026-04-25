@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response, Router } from "express";
 import passport from "passport";
+import { envVars } from "../../config/env";
 import { checkAuth } from "../../middlewares/checkAuth";
 import { Role } from "../user/user.interface";
 import { AuthControllers } from "./auth.controller";
@@ -12,17 +13,17 @@ router.post("/login", AuthControllers.credentialsLogin);
 router.post("/logout", AuthControllers.logout);
 router.post("/refresh-token", AuthControllers.getNewAccessToken);
 router.post("/change-password", checkAuth(...Object.values(Role)) ,AuthControllers.changePassword);
-router.post("/reset-password", checkAuth(...Object.values(Role)) ,AuthControllers.resetPassword);
 router.post("/set-password", checkAuth(...Object.values(Role)) ,AuthControllers.setPassword);
+router.post("/forget-password",AuthControllers.forgetPassword);
+router.post("/reset-password", checkAuth(...Object.values(Role)) ,AuthControllers.resetPassword);
 
 // Google Login
 router.get("/google", async(req:Request, res:Response, next:NextFunction) => {
   const redirect = req.query.redirect || "";
-
   passport.authenticate("google", {scope:["profile", "email"], state:redirect as string})(req,res, next)
 });
 
-router.get("/google/callback", passport.authenticate("google", {failureRedirect:"/login"}),AuthControllers.googleCallbackController)
+router.get("/google/callback", passport.authenticate("google", {failureRedirect:`${envVars.FRONTEND_URL}/login?error=Threre are some issue with your account. Please contact with our support team!`}),AuthControllers.googleCallbackController)
 
 
 

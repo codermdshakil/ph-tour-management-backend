@@ -30,6 +30,7 @@ export interface IUser{
   password?:string;
   phone?:string;
   picture?:string;
+  NID_Photo?:string;
   address?:string;
   isDeleted?:string;
   isActive?:IsActive;
@@ -38,4 +39,5 @@ export interface IUser{
   auths:IAuthProvider[];
   bookings?: Types.ObjectId[];
   guides:Types.ObjectId[];
+  createdAt?:Date
 }
