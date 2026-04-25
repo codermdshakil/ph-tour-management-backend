@@ -54,18 +54,28 @@ const updateUser = async (
    * name, phone, addres, password
    * password - re hashing
    * Only ADMIN, SUPER_ADMIN - role, isDeleted ....
-   *
    * promoting to superadmin - superadmin
    *
    */
 
+  if(decodedToken.role === Role.USER || decodedToken.role === Role.GUIDE){
+    if(userId !== decodedToken.userId){
+      throw new AppError(StatusCodes.BAD_REQUEST, "You are not Authoraized!!")
+    }
+  }
+
+
   // check user exist kore naki na
+  const isUserExist = await User.findById(userId);
 
-  const ifUserExist = await User.findById(userId);
-
-  if (!ifUserExist) {
+  if (!isUserExist) {
     throw new AppError(StatusCodes.NOT_FOUND, "User not Found!!");
   }
+
+  if(decodedToken.role === Role.ADMIN && isUserExist.role === Role.SUPER_ADMIN){
+    throw new AppError(StatusCodes.BAD_REQUEST, "You are not Authoraized!!")
+  }
+
 
   if (payload.role) {
     // jodi decodedToken a role user and guide thake tahole user er kono kichu update e korte dibo na
@@ -76,9 +86,9 @@ const updateUser = async (
     // SUPER_ADMIN ke just SUPER_ADMIN e promote ba change korte parbe
     // promoting to superadmin - only superadmin
 
-    if (payload.role === Role.SUPER_ADMIN && decodedToken.role === Role.ADMIN) {
-      throw new AppError(StatusCodes.FORBIDDEN, "You are not Authorized!!");
-    }
+    // if (payload.role === Role.SUPER_ADMIN && decodedToken.role === Role.ADMIN) {
+    //   throw new AppError(StatusCodes.FORBIDDEN, "You are not Authorized!!");
+    // }
   }
 
   // isActive, isDeleted, isVerified sodu ADMIN, SUPER_ADMIN e change korte parbe
@@ -88,13 +98,6 @@ const updateUser = async (
     }
   }
 
-  // password re hashing
-  if (payload.password) {
-    payload.password = await bcryptjs.hash(
-      payload.password,
-      parseInt(envVars.BCRYPTJS_SALT_ROUND),
-    );
-  }
 
   const newUpdatedUser = await User.findByIdAndUpdate(userId, payload, {
     new: true,
