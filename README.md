@@ -1,4 +1,3 @@
-# ph-tour-management-backend
 # PH Tour Management Backend
 
 A comprehensive full-stack tour management system built with Node.js, Express, MongoDB, and TypeScript. Features include user authentication, tour bookings, payment processing with SSL Commerz, guide management, admin dashboard integration, and email notifications.
