@@ -20,25 +20,28 @@ passport.use(
     },
     async (email: string, password: string, done) => {
       try {
-
         const isUserExist = await User.findOne({ email });
 
         if (!isUserExist) {
           return done(null, false, { message: "User does not Exist!!" });
         }
 
-        if ( isUserExist && (isUserExist.isActive === IsActive.BLOCKED || isUserExist.isActive === IsActive.INACTIVE)) {
-
-          return done(null, false, { message: `User is ${isUserExist.isActive}!!` });
-
+        if (
+          isUserExist &&
+          (isUserExist.isActive === IsActive.BLOCKED ||
+            isUserExist.isActive === IsActive.INACTIVE)
+        ) {
+          return done(null, false, {
+            message: `User is ${isUserExist.isActive}!!`,
+          });
         }
 
         if (isUserExist.isDeleted) {
-           return done(null, false, { message:  "User is Deleted!!" });
+          return done(null, false, { message: "User is Deleted!!" });
         }
 
         if (!isUserExist.isVerified) {
-            return done(null, false, { message:  "User is not verified!!" });
+          return done(null, false, { message: "User is not verified!!" });
         }
 
         // check user google authenticated
@@ -95,26 +98,27 @@ passport.use(
 
         let isUserExist = await User.findOne({ email });
 
-
-         if (!isUserExist) {
-          return done(null, false, { message: "User does not Exist!!" });
+        if (
+          isUserExist &&
+          (isUserExist.isActive === IsActive.BLOCKED ||
+            isUserExist.isActive === IsActive.INACTIVE)
+        ) {
+          return done(null, false, {
+            message: `User is ${isUserExist.isActive}!!`,
+          });
         }
 
-        if ( isUserExist && (isUserExist.isActive === IsActive.BLOCKED || isUserExist.isActive === IsActive.INACTIVE)) {
-
-          return done(null, false, { message: `User is ${isUserExist.isActive}!!` });
-
+        if (isUserExist?.isDeleted) {
+          return done(null, false, {
+            message: "User is Deleted!!",
+          });
         }
 
-        if (isUserExist.isDeleted) {
-           return done(null, false, { message:  "User is Deleted!!" });
+        if (isUserExist && !isUserExist.isVerified) {
+          return done(null, false, {
+            message: "User is not verified!!",
+          });
         }
-
-        if (!isUserExist.isVerified) {
-            return done(null, false, { message:  "User is not verified!!" });
-        }
-
-
 
         if (!isUserExist) {
           isUserExist = await User.create({
@@ -133,7 +137,7 @@ passport.use(
         }
 
         return done(null, isUserExist);
-
+        
       } catch (error) {
         console.log("Google strategy Error", error);
         return done(error);
