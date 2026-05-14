@@ -10,8 +10,8 @@ export const setAuthCookie = (res: Response, tokenInfo: AuthToken) => {
     // set accessToken to cookies
     res.cookie("accessToken", tokenInfo.accessToken, {
       httpOnly: true, // MUST have
-      secure: false,
-      sameSite: "strict",
+      secure: true,
+      sameSite: "none",
     });
   }
 
@@ -19,8 +19,8 @@ export const setAuthCookie = (res: Response, tokenInfo: AuthToken) => {
     // set refreshToken to cookies
     res.cookie("refreshToken", tokenInfo.refreshToken, {
       httpOnly: true, // MUST have
-      secure: false,
-      sameSite: "strict",
+      secure: true,
+      sameSite: "none",
     });
   }
 };
